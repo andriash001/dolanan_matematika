@@ -1,6 +1,11 @@
 # 🎲 Dolanan Matematika
 
-**Dolanan Matematika** (Math Play) is a collection of two-player math strategy board games built with vanilla HTML, CSS, and JavaScript. The first available game — **Rumah Penjumlahan** (Addition House) — challenges players to align **4 consecutive pions** on a 10×10 board by strategically manipulating shared addition pions to control which cells they can claim. More games are coming soon!
+**Dolanan Matematika** (Math Play) is a collection of two-player math strategy board games built with vanilla HTML, CSS, and JavaScript. Two games are currently available:
+
+- **Rumah Penjumlahan** (Addition House) — manipulate shared addition pions to control which cells you can claim.
+- **Rumah Perkalian** (Multiplication House) — manipulate shared multiplication pions using products instead of sums.
+
+Both games challenge players to align **4 consecutive pions** on a 10×10 board through strategic pion movement.
 
 ---
 
@@ -16,11 +21,10 @@
   - [Gameplay Loop](#gameplay-loop)
   - [Winning the Game](#winning-the-game)
 - [Game Mechanics](#game-mechanics)
-  - [The Boards](#the-boards)
-  - [Sum Calculation](#sum-calculation)
-  - [Pion Movement Rules](#pion-movement-rules)
+  - [Rumah Penjumlahan (Addition)](#rumah-penjumlahan-addition)
+  - [Rumah Perkalian (Multiplication)](#rumah-perkalian-multiplication)
   - [First Turn Special Rule](#first-turn-special-rule)
-  - [Turn Skipping](#turn-skipping)
+  - [Turn Skipping & Auto Game Over](#turn-skipping--auto-game-over)
   - [Turn Timer](#turn-timer)
 - [AI Opponent](#ai-opponent)
 - [Tech Stack](#tech-stack)
@@ -32,7 +36,7 @@
 
 ## Features
 
-- **Game Collection Hub**: Home screen with multiple math games (more coming soon!)
+- **Two Math Games**: Rumah Penjumlahan (Addition) and Rumah Perkalian (Multiplication)
 - **Two Game Modes**: Local PvP (Player vs Player) or PvAI (Player vs AI)
 - **Configurable Turn Timer**: Choose 15s, 30s, 60s, or unlimited time per turn
 - **Coin Toss Mechanic**: Animated coin flip to fairly decide who places first
@@ -49,7 +53,7 @@
 | Game | Status | Description |
 |------|--------|-------------|
 | ➕ **Rumah Penjumlahan** | ✅ Available | Addition-based strategy board game |
-| ✖️ **Rumah Perkalian** | 🔜 Coming Soon | Multiplication-based strategy board game |
+| ✖️ **Rumah Perkalian** | ✅ Available | Multiplication-based strategy board game |
 
 ---
 
@@ -57,7 +61,7 @@
 
 ### Home Screen
 
-Launch the app to see the **game selection hub**. Pick a game tile to begin — currently, **Rumah Penjumlahan** (Addition House) is available. More games will be added over time.
+Launch the app to see the **game selection hub**. Pick a game tile to begin — **Rumah Penjumlahan** (Addition House) or **Rumah Perkalian** (Multiplication House). Each game has its own setup, coin toss, placement, and game screens.
 
 ### Game Setup
 
@@ -77,17 +81,19 @@ Launch the app to see the **game selection hub**. Pick a game tile to begin — 
 
 ### Initial Placement
 
-- The coin toss winner places **two pions** on the **Addition Board** (2×10 grid):
-  - **First pion**: Can be placed on either Row 1 (Blue) or Row 2 (Red), at any column (values 1–10).
-  - **Second pion**: Must be placed on the remaining row. Some columns may be disabled if their sum with the first pion would exceed 18.
+- The coin toss winner places **two pions** on the side board:
+  - **Rumah Penjumlahan**: Addition Board (2×10 grid, values 1–10). Some columns may be disabled for the second pion if the sum would exceed 18.
+  - **Rumah Perkalian**: Multiplication Board (2×9 grid, values 1–9). No column restrictions — all products are valid.
+  - **First pion**: Can be placed on either Row 1 (Blue) or Row 2 (Red).
+  - **Second pion**: Must be placed on the remaining row.
 - After both pions are placed, click **"Konfirmasi Penempatan"** to begin.
 
 ### Gameplay Loop
 
 Each turn consists of **two phases**:
 
-1. **Move Pion** — The active player moves their pion to a **different column** on their row of the Addition Board. The two pion values are summed together.
-2. **Place on Board** — The player claims an **unclaimed cell** on the 10×10 Game Board whose value matches the current sum. Matching cells are highlighted in gold.
+1. **Move Pion** — The active player moves their pion to a **different column** on their row of the side board. The two pion values are combined (summed for Addition, multiplied for Multiplication).
+2. **Place on Board** — The player claims an **unclaimed cell** on the 10×10 Game Board whose value matches the current result. Matching cells are highlighted in gold.
 
 Play alternates between players after each complete turn.
 
@@ -105,37 +111,57 @@ Winning cells glow green to celebrate the victory.
 
 ## Game Mechanics
 
-### The Boards
+### Rumah Penjumlahan (Addition)
 
 | Board | Size | Description |
 |-------|------|-------------|
 | **Game Board** | 10×10 | Each cell has a random value between **2 and 18**. Players claim cells by matching the current sum. |
-| **Addition Board** | 2×10 | Two rows of values **1–10**. Row 1 belongs to Player 1 (Blue), Row 2 belongs to Player 2 (Red). Each row has exactly one pion. |
+| **Addition Board** | 2×10 | Two rows of values **1–10**. Row 1 = Player 1 (Blue), Row 2 = Player 2 (Red). Each row has one pion. |
 
-### Sum Calculation
+**Sum Calculation:**
 
 ```
-Sum = (Player 1's pion column value) + (Player 2's pion column value)
+Sum = (Player 1's pion value) + (Player 2's pion value)
 ```
 
-- Pion column values range from **1 to 10**.
-- Therefore, possible sums range from **2 to 18** (but constrained to max 18 during play).
+- Pion values range from **1 to 10**, so possible sums are **2–20** (capped at 18 via disabled columns).
+- A player **must move** to a different column. Columns where the sum would exceed 18 are **disabled**.
 
-For example, if Player 1's pion is on column 5 (value 5) and Player 2's pion is on column 7 (value 7), the sum is **12**. The active player must then claim a cell with value 12 on the Game Board.
+**Example:** Player 1's pion on column 5 + Player 2's pion on column 7 = sum **12**. Claim a cell with value 12.
 
-### Pion Movement Rules
+### Rumah Perkalian (Multiplication)
 
-- A player **must move** their pion to a **different column** — staying in place is not allowed.
-- A player can only move columns where the resulting sum does **not exceed 18**.
-- Columns that would cause an invalid sum are visually **disabled** (greyed out).
+| Board | Size | Description |
+|-------|------|-------------|
+| **Game Board** | 10×10 | Each cell has a random value from the set of **valid products** of two numbers 1–9 (36 unique values: 1, 2, 3, ..., 72, 81). |
+| **Multiplication Board** | 2×9 | Two rows of values **1–9**. Row 1 = Player 1 (Blue), Row 2 = Player 2 (Red). Each row has one pion. |
+
+**Product Calculation:**
+
+```
+Product = (Player 1's pion value) × (Player 2's pion value)
+```
+
+- Pion values range from **1 to 9**, so possible products are **1–81**.
+- All products are valid — no columns are disabled by value range. Only the current position is disabled (must move).
+
+**Example:** Player 1's pion on column 3 × Player 2's pion on column 7 = product **21**. Claim a cell with value 21.
+
+**Valid Products (36 unique values):**
+`1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 24, 25, 27, 28, 30, 32, 35, 36, 40, 42, 45, 48, 49, 54, 56, 63, 64, 72, 81`
 
 ### First Turn Special Rule
 
-On the **very first turn** (belonging to the coin toss winner), the player may move **either** pion (Blue or Red) — not just their own. This adds an extra layer of strategy to the opening move. After the first turn, each player can only move their own pion.
+On the **very first turn** (belonging to the coin toss winner), the player may move **either** pion (Blue or Red) — not just their own. This adds an extra layer of strategy to the opening move. After the first turn, each player can only move their own pion. This rule applies to both games.
 
-### Turn Skipping
+### Turn Skipping & Auto Game Over
 
-If the current sum has **no available (unclaimed) cells** on the Game Board, the turn is automatically **skipped** with a notification overlay. Play passes to the next player.
+If the current result (sum or product) has **no available (unclaimed) cells** on the Game Board:
+
+- If the player **had an alternative pion position** that would yield available cells → **Auto-lose** (the opponent wins).
+- If **no valid pion position** exists with available cells → **Draw**.
+
+This prevents players from deliberately choosing dead-end positions.
 
 ### Turn Timer
 
@@ -167,9 +193,9 @@ The AI (always Player 2 / Red) uses a **heuristic evaluation** strategy:
 | 7 | **Center preference** — Cells closer to the center offer more connection possibilities | Variable |
 | 8 | **Random factor** — Small randomness to avoid predictability | 0–10 |
 
-The AI evaluates **every possible pion position** (all 9 alternative columns) and every available cell for each resulting sum, then picks the highest-scoring move.
+The AI evaluates **every possible pion position** and every available cell for each resulting sum/product, then picks the highest-scoring move.
 
-For **initial placement**, the AI prefers central columns (values 5–6) for maximum flexibility, with slight randomness.
+For **initial placement**, the AI prefers central columns for maximum flexibility, with slight randomness. Both Rumah Penjumlahan and Rumah Perkalian share the same AI strategy, adapted for their respective operations.
 
 ---
 
@@ -185,22 +211,31 @@ For **initial placement**, the AI prefers central columns (values 5–6) for max
 
 ```
 dolanan_matematika/
-├── index.html          # Single-page HTML (all screens)
+├── index.html          # Single-page HTML (all screens for both games)
 ├── css/
 │   └── style.css       # All styles, animations, responsive design
 ├── js/
-│   ├── game.js         # Core game logic (state, rules, win detection)
-│   ├── ai.js           # AI opponent (heuristic move evaluation)
-│   └── ui.js           # DOM manipulation, event handling, screen flow
+│   ├── game.js         # Penjumlahan: core game logic (Game module)
+│   ├── ai.js           # Penjumlahan: AI opponent (AI module)
+│   ├── ui.js           # Penjumlahan: DOM & event handling (UI module)
+│   ├── game-perkalian.js  # Perkalian: core game logic (GameMult module)
+│   ├── ai-perkalian.js    # Perkalian: AI opponent (AIMult module)
+│   └── ui-perkalian.js    # Perkalian: DOM & event handling (UIMult module)
 ├── README.md
 └── LICENSE
 ```
 
 ### Module Responsibilities
 
-- **`Game`** — Manages all game state: board generation, coin toss, pion placement, move validation, sum calculation, win checking, and turn advancement. Exposes a public API consumed by UI and AI.
-- **`AI`** — Evaluates all possible moves for the AI player using streak counting, threat detection, and positional scoring. Returns the optimal pion position and board cell.
-- **`UI`** — Handles all DOM rendering, screen transitions, event listeners, animation triggers, and coordinates between Game and AI modules. Uses event delegation for efficient click handling.
+Each game has its own set of three modules that follow the same architecture:
+
+| Module | Penjumlahan | Perkalian | Role |
+|--------|------------|-----------|------|
+| **Game Logic** | `Game` | `GameMult` | Board generation, move validation, win detection, turn management |
+| **AI** | `AI` | `AIMult` | Heuristic move evaluation, initial placement strategy |
+| **UI** | `UI` | `UIMult` | DOM rendering, screen transitions, event handling, timer |
+
+The games are fully independent — separate files, separate state, separate screens. The home screen and win/draw overlays are shared. This architecture ensures changes to one game never break the other.
 
 ---
 

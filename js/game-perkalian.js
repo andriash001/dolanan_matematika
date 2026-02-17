@@ -1,14 +1,21 @@
 /* ============================================
-   DOLANAN MATEMATIKA - GAME LOGIC
+   DOLANAN MATEMATIKA - GAME LOGIC (PERKALIAN)
    ============================================ */
 
-// ---- Global Constants ----
-const BOARD_SIZE = 10;
-const WIN_LENGTH = 4;
-const MIN_CELL_VALUE = 2;
-const MAX_CELL_VALUE = 18;
+// ---- Global Constants for Multiplication Game ----
+const MULT_BOARD_SIZE = 10;
+const MULT_WIN_LENGTH = 4;
+const MULT_COLS = 9; // Multiplication board has 9 columns (values 1-9)
 
-const Game = (() => {
+// All valid products of two numbers from 1 to 9
+const VALID_PRODUCTS = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    12, 14, 15, 16, 18, 20, 21, 24, 25, 27,
+    28, 30, 32, 35, 36, 40, 42, 45, 48, 49,
+    54, 56, 63, 64, 72, 81
+];
+
+const GameMult = (() => {
     // ---- State ----
     let state = {
         mode: 'pvp',           // 'pvp' or 'ai'
@@ -20,9 +27,9 @@ const Game = (() => {
         phase: 'menu',         // menu | coin | placement | move-pion | place-board
         coinWinner: null,      // 0 or 1
         board: [],             // 10x10 array: { value: number, owner: null|0|1 }
-        additionBoard: [       // 2 rows x 10 cols (values 1-10)
-            [1,2,3,4,5,6,7,8,9,10],
-            [1,2,3,4,5,6,7,8,9,10]
+        multiplicationBoard: [ // 2 rows x 9 cols (values 1-9)
+            [1,2,3,4,5,6,7,8,9],
+            [1,2,3,4,5,6,7,8,9]
         ],
         placementStep: 0,      // 0 = placing pion for row that coin winner picks first
         isFirstTurn: true,     // coin winner's first real turn after placement
@@ -35,11 +42,11 @@ const Game = (() => {
     // ---- Board Generation ----
     function generateBoard() {
         const board = [];
-        for (let r = 0; r < BOARD_SIZE; r++) {
+        for (let r = 0; r < MULT_BOARD_SIZE; r++) {
             const row = [];
-            for (let c = 0; c < BOARD_SIZE; c++) {
+            for (let c = 0; c < MULT_BOARD_SIZE; c++) {
                 row.push({
-                    value: randomInt(MIN_CELL_VALUE, MAX_CELL_VALUE),
+                    value: VALID_PRODUCTS[randomInt(0, VALID_PRODUCTS.length - 1)],
                     owner: null
                 });
             }
@@ -75,7 +82,6 @@ const Game = (() => {
 
     // ---- Coin Toss ----
     function coinToss(player1Choice) {
-        // player1Choice: 'head' or 'tail'
         const result = Math.random() < 0.5 ? 'head' : 'tail';
         const p1Wins = (player1Choice === result);
         state.coinWinner = p1Wins ? 0 : 1;
@@ -83,32 +89,27 @@ const Game = (() => {
     }
 
     // ---- Placement (initial) ----
-    // Coin winner places both pions: first one row, then the other
     function setPlacementPhase() {
         state.phase = 'placement';
-        state.placementStep = 0; // 0 = first pion, 1 = second pion
+        state.placementStep = 0;
     }
 
     // Place pion during initial placement
-    // row: 0 or 1, col: 0-9 (position = col+1 => value 1-10)
+    // row: 0 or 1, col: 0-8 (position = col+1 => value 1-9)
     function placeInitialPion(row, col) {
         if (state.phase !== 'placement') return false;
 
         if (state.placementStep === 0) {
-            // Place first pion (coin winner picks which row to place first)
             state.players[row].pionPos = col;
             state.placementStep = 1;
             return { done: false, placedRow: row };
         } else {
-            // Place second pion (the other row)
             const otherRow = state.players[0].pionPos !== null ? 1 : 0;
             if (state.players[row].pionPos !== null) {
-                // This row already has a pion, must place on the other row
                 row = otherRow;
             }
             state.players[row].pionPos = col;
             state.placementStep = 2;
-            // Now move to actual game — coin winner places on board first
             state.phase = 'place-board';
             state.currentPlayer = state.coinWinner;
             state.isFirstTurn = true;
@@ -116,7 +117,6 @@ const Game = (() => {
         }
     }
 
-    // Get which row still needs pion placement
     function getUnplacedRow() {
         if (state.players[0].pionPos === null && state.players[1].pionPos === null) return 'both';
         if (state.players[0].pionPos === null) return 0;
@@ -124,53 +124,47 @@ const Game = (() => {
         return null;
     }
 
-    // ---- Move Pion on Addition Board ----
+    // ---- Move Pion on Multiplication Board ----
     function movePion(playerIdx, newCol) {
         if (state.phase !== 'move-pion') return false;
         if (state.winner !== null) return false;
 
-        // Validate: can this player move?
         if (!state.isFirstTurn && playerIdx !== state.currentPlayer) return false;
 
-        // On first turn, coin winner can move either pion
-        // On subsequent turns, player can only move their own pion
-        if (newCol < 0 || newCol >= BOARD_SIZE) return false;
+        if (newCol < 0 || newCol >= MULT_COLS) return false;
 
-        // Prevent staying at the same position — must move to a different column
+        // Prevent staying at the same position
         if (newCol === state.players[playerIdx].pionPos) return false;
 
         state.players[playerIdx].pionPos = newCol;
 
-        // Calculate sum
-        const sum = getSum();
-
-        // Check if there are available cells for this sum
-        const availableCells = getAvailableCellsForSum(sum);
+        const product = getProduct();
+        const availableCells = getAvailableCellsForProduct(product);
 
         state.phase = 'place-board';
 
         return {
-            sum,
+            product,
             availableCells,
             movedPlayer: playerIdx
         };
     }
 
-    // ---- Get Sum ----
-    function getSum() {
-        const p1Pos = state.players[0].pionPos; // col index 0-9
+    // ---- Get Product ----
+    function getProduct() {
+        const p1Pos = state.players[0].pionPos; // col index 0-8
         const p2Pos = state.players[1].pionPos;
         if (p1Pos === null || p2Pos === null) return null;
-        // Values are col+1 (1-10)
-        return (p1Pos + 1) + (p2Pos + 1);
+        // Values are col+1 (1-9)
+        return (p1Pos + 1) * (p2Pos + 1);
     }
 
     // ---- Available Cells ----
-    function getAvailableCellsForSum(sum) {
+    function getAvailableCellsForProduct(product) {
         const cells = [];
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if (state.board[r][c].value === sum && state.board[r][c].owner === null) {
+        for (let r = 0; r < MULT_BOARD_SIZE; r++) {
+            for (let c = 0; c < MULT_BOARD_SIZE; c++) {
+                if (state.board[r][c].value === product && state.board[r][c].owner === null) {
                     cells.push({ row: r, col: c });
                 }
             }
@@ -184,9 +178,9 @@ const Game = (() => {
         if (state.winner !== null) return false;
 
         const cell = state.board[row][col];
-        const sum = getSum();
+        const product = getProduct();
 
-        if (cell.value !== sum || cell.owner !== null) return false;
+        if (cell.value !== product || cell.owner !== null) return false;
 
         cell.owner = state.currentPlayer;
         state.players[state.currentPlayer].pionsOnBoard++;
@@ -197,7 +191,6 @@ const Game = (() => {
             pionPositions: [state.players[0].pionPos, state.players[1].pionPos]
         });
 
-        // Check win
         const winResult = checkWin(row, col, state.currentPlayer);
         if (winResult) {
             state.winner = state.currentPlayer;
@@ -205,13 +198,10 @@ const Game = (() => {
             return { win: true, winner: state.currentPlayer, winCells: winResult };
         }
 
-        // Next turn
         advanceTurn();
-
         return { win: false };
     }
 
-    // Skip turn when no available cells or time ran out
     function skipTurn() {
         if (state.phase !== 'place-board' && state.phase !== 'move-pion') return;
         advanceTurn();
@@ -224,7 +214,6 @@ const Game = (() => {
     }
 
     // ---- Win Check ----
-    // Check if placing at (row, col) creates 4 in a row for player
     function checkWin(row, col, player) {
         const directions = [
             [0, 1],   // horizontal
@@ -236,70 +225,57 @@ const Game = (() => {
         for (const [dr, dc] of directions) {
             const cells = [{ row, col }];
 
-            // Count forward
-            for (let i = 1; i < WIN_LENGTH; i++) {
+            for (let i = 1; i < MULT_WIN_LENGTH; i++) {
                 const r = row + dr * i;
                 const c = col + dc * i;
-                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) break;
+                if (r < 0 || r >= MULT_BOARD_SIZE || c < 0 || c >= MULT_BOARD_SIZE) break;
                 if (state.board[r][c].owner !== player) break;
                 cells.push({ row: r, col: c });
             }
 
-            // Count backward
-            for (let i = 1; i < WIN_LENGTH; i++) {
+            for (let i = 1; i < MULT_WIN_LENGTH; i++) {
                 const r = row - dr * i;
                 const c = col - dc * i;
-                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) break;
+                if (r < 0 || r >= MULT_BOARD_SIZE || c < 0 || c >= MULT_BOARD_SIZE) break;
                 if (state.board[r][c].owner !== player) break;
                 cells.push({ row: r, col: c });
             }
 
-            if (cells.length >= WIN_LENGTH) return cells;
+            if (cells.length >= MULT_WIN_LENGTH) return cells;
         }
 
         return null;
     }
 
-    // ---- Check if any moves available for a sum ----
+    // ---- Check if any moves available for a product ----
     function hasMovesForAnyPionPosition(playerIdx) {
-        // Check all 10 possible positions for this player's pion
-        for (let pos = 0; pos < BOARD_SIZE; pos++) {
-            // Skip current position — player must move
+        for (let pos = 0; pos < MULT_COLS; pos++) {
             if (pos === state.players[playerIdx].pionPos) continue;
             const otherPlayerPos = state.players[1 - playerIdx].pionPos;
-            const sum = (pos + 1) + (otherPlayerPos + 1);
-            if (sum > MAX_CELL_VALUE) continue;
-            const available = getAvailableCellsForSum(sum);
+            const product = (pos + 1) * (otherPlayerPos + 1);
+            const available = getAvailableCellsForProduct(product);
             if (available.length > 0) return true;
         }
         return false;
     }
 
     // ---- Auto Game Over Check ----
-    // Called when a player picks a pion position that results in 0 available cells.
-    // Determines if the player had a safe move (auto-lose) or was trapped (draw).
-    // Returns: { autoLose: true, loser, winner } | { draw: true } | false
     function checkAutoGameOver(playerIdx) {
         if (state.isFirstTurn) {
-            // Coin winner can move either pion — check both rows
             for (let row = 0; row < 2; row++) {
                 const otherRow = 1 - row;
                 const otherVal = state.players[otherRow].pionPos + 1;
-                for (let pos = 0; pos < BOARD_SIZE; pos++) {
+                for (let pos = 0; pos < MULT_COLS; pos++) {
                     if (pos === state.players[row].pionPos) continue;
-                    const sum = (pos + 1) + otherVal;
-                    if (sum > MAX_CELL_VALUE) continue;
-                    const available = getAvailableCellsForSum(sum);
+                    const product = (pos + 1) * otherVal;
+                    const available = getAvailableCellsForProduct(product);
                     if (available.length > 0) {
-                        // A safe move existed — player loses
                         return { autoLose: true, loser: playerIdx, winner: 1 - playerIdx };
                     }
                 }
             }
-            // No safe move existed across all positions — draw
             return { draw: true };
         } else {
-            // Normal turn: check all valid columns for this player's pion
             if (hasMovesForAnyPionPosition(playerIdx)) {
                 return { autoLose: true, loser: playerIdx, winner: 1 - playerIdx };
             }
@@ -314,61 +290,37 @@ const Game = (() => {
 
     // ---- Set Draw ----
     function setDraw() {
-        state.winner = -1; // -1 indicates draw
+        state.winner = -1;
     }
 
-    // ---- Disabled Columns (sum would exceed MAX_CELL_VALUE) ----
-    // Returns array of column indices (0-9) that are disabled for a given player
-    // during the move-pion phase. For isFirstTurn, returns { 0: [...], 1: [...] }
-    // keyed by row, since the coin winner can move either pion.
+    // ---- Disabled Columns ----
+    // For multiplication, no columns are disabled by value range (all products 1-81 are valid).
+    // Only the current position is disabled (must move to a different column).
     function getDisabledColumns(playerIdx) {
         if (state.isFirstTurn) {
-            // Coin winner can move either pion — compute per-row
             const result = {};
             for (let row = 0; row < 2; row++) {
-                const otherRow = 1 - row;
-                const otherVal = state.players[otherRow].pionPos + 1; // 1-10
-                const maxAllowed = MAX_CELL_VALUE - otherVal; // max value for this row's pion
                 const disabled = [];
-                for (let c = 0; c < BOARD_SIZE; c++) {
-                    if ((c + 1) > maxAllowed) disabled.push(c);
-                }
-                // Also disable current position — player must move to a different column
                 const currentPos = state.players[row].pionPos;
-                if (currentPos !== null && !disabled.includes(currentPos)) {
+                if (currentPos !== null) {
                     disabled.push(currentPos);
                 }
                 result[row] = disabled;
             }
             return result;
         } else {
-            // Normal turn: player can only move their own pion
-            const otherVal = state.players[1 - playerIdx].pionPos + 1;
-            const maxAllowed = MAX_CELL_VALUE - otherVal;
             const disabled = [];
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if ((c + 1) > maxAllowed) disabled.push(c);
-            }
-            // Also disable current position — player must move to a different column
             const currentPos = state.players[playerIdx].pionPos;
-            if (currentPos !== null && !disabled.includes(currentPos)) {
+            if (currentPos !== null) {
                 disabled.push(currentPos);
             }
             return disabled;
         }
     }
 
-    // Returns array of disabled column indices for the second pion during initial placement.
-    // firstPionCol is the column (0-9) of the already-placed pion.
+    // No placement constraints for multiplication — all products are valid
     function getDisabledColumnsForPlacement(firstPionCol) {
-        if (firstPionCol === null || firstPionCol === undefined) return [];
-        const firstVal = firstPionCol + 1;
-        const maxAllowed = MAX_CELL_VALUE - firstVal;
-        const disabled = [];
-        for (let c = 0; c < BOARD_SIZE; c++) {
-            if ((c + 1) > maxAllowed) disabled.push(c);
-        }
-        return disabled;
+        return [];
     }
 
     // ---- Getters ----
@@ -427,8 +379,8 @@ const Game = (() => {
         placeInitialPion,
         getUnplacedRow,
         movePion,
-        getSum,
-        getAvailableCellsForSum,
+        getProduct,
+        getAvailableCellsForProduct,
         placeOnBoard,
         skipTurn,
         checkWin,

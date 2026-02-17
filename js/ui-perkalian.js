@@ -1,62 +1,61 @@
 /* ============================================
-   DOLANAN MATEMATIKA - UI / DOM CONTROLLER
+   DOLANAN MATEMATIKA - UI / DOM CONTROLLER (PERKALIAN)
    ============================================ */
 
-const UI = (() => {
+const UIMult = (() => {
     // ---- DOM References ----
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => document.querySelectorAll(sel);
 
     // Screens
     const homeScreen = $('#home-screen');
-    const menuScreen = $('#menu-screen');
-    const coinScreen = $('#coin-screen');
-    const placementScreen = $('#placement-screen');
-    const gameScreen = $('#game-screen');
+    const menuScreen = $('#menu-screen-mult');
+    const coinScreen = $('#coin-screen-mult');
+    const placementScreen = $('#placement-screen-mult');
+    const gameScreen = $('#game-screen-mult');
 
     // Home
-    const tilePenjumlahan = $('#tile-penjumlahan');
     const tilePerkalian = $('#tile-perkalian');
-    const backHomeBtn = $('#back-home-btn');
+    const backHomeBtn = $('#back-home-btn-mult');
 
     // Menu
-    const modeButtons = $$('#menu-screen .mode-btn');
-    const timerButtons = $$('#menu-screen .timer-btn');
-    const player1Input = $('#player1-name');
-    const player2Input = $('#player2-name');
-    const player2Group = $('#player2-input');
-    const startBtn = $('#start-btn');
+    const modeButtons = $$('#menu-screen-mult .mode-btn');
+    const timerButtons = $$('#menu-screen-mult .timer-btn');
+    const player1Input = $('#player1-name-mult');
+    const player2Input = $('#player2-name-mult');
+    const player2Group = $('#player2-input-mult');
+    const startBtn = $('#start-btn-mult');
 
     // Coin
-    const coinEl = $('#coin');
-    const coinChoices = $('#coin-choices');
-    const coinInstruction = $('#coin-instruction');
-    const coinResult = $('#coin-result');
-    const coinResultText = $('#coin-result-text');
-    const coinContinueBtn = $('#coin-continue-btn');
+    const coinEl = $('#coin-mult');
+    const coinChoices = $('#coin-choices-mult');
+    const coinInstruction = $('#coin-instruction-mult');
+    const coinResult = $('#coin-result-mult');
+    const coinResultText = $('#coin-result-text-mult');
+    const coinContinueBtn = $('#coin-continue-btn-mult');
 
     // Placement
-    const placementTitle = $('#placement-title');
-    const placementInstruction = $('#placement-instruction');
-    const placementAddBoard = $('#placement-addition-board');
-    const placementConfirmBtn = $('#placement-confirm-btn');
+    const placementTitle = $('#placement-title-mult');
+    const placementInstruction = $('#placement-instruction-mult');
+    const placementMultBoard = $('#placement-multiplication-board');
+    const placementConfirmBtn = $('#placement-confirm-btn-mult');
 
     // Game
-    const gameBoard = $('#game-board');
-    const gameAddBoard = $('#game-addition-board');
-    const turnIndicator = $('#turn-indicator');
-    const turnTimerEl = $('#turn-timer');
-    const timerValueEl = $('#timer-value');
-    const sumDisplay = $('#sum-value');
-    const phaseInstruction = $('#phase-instruction');
-    const p1NameDisplay = $('#p1-name-display');
-    const p2NameDisplay = $('#p2-name-display');
-    const p1Score = $('#p1-score');
-    const p2Score = $('#p2-score');
-    const p1Info = $('#player1-info');
-    const p2Info = $('#player2-info');
+    const gameBoard = $('#game-board-mult');
+    const gameMultBoard = $('#game-multiplication-board');
+    const turnIndicator = $('#turn-indicator-mult');
+    const turnTimerEl = $('#turn-timer-mult');
+    const timerValueEl = $('#timer-value-mult');
+    const productDisplay = $('#product-value-mult');
+    const phaseInstruction = $('#phase-instruction-mult');
+    const p1NameDisplay = $('#p1-name-display-mult');
+    const p2NameDisplay = $('#p2-name-display-mult');
+    const p1Score = $('#p1-score-mult');
+    const p2Score = $('#p2-score-mult');
+    const p1Info = $('#player1-info-mult');
+    const p2Info = $('#player2-info-mult');
 
-    // Overlays
+    // Overlays (shared with penjumlahan)
     const winOverlay = $('#win-overlay');
     const winTitle = $('#win-title');
     const winMessage = $('#win-message');
@@ -75,7 +74,7 @@ const UI = (() => {
     let aiTimerIds = [];
     let turnTimerId = null;
     let turnTimeRemaining = 0;
-    let isAddActive = false; // Track if addition game is the active game
+    let isMultActive = false; // Track if multiplication game is the active game
 
     function scheduleAI(fn, delay) {
         const id = setTimeout(fn, delay);
@@ -91,7 +90,7 @@ const UI = (() => {
     // ---- Turn Timer ----
     function startTurnTimer() {
         stopTurnTimer();
-        const limit = Game.getTimeLimit();
+        const limit = GameMult.getTimeLimit();
         if (!limit || limit <= 0) {
             turnTimerEl.style.display = 'none';
             return;
@@ -122,20 +121,18 @@ const UI = (() => {
 
     function onTurnTimeout() {
         stopTurnTimer();
-        if (Game.getWinner() !== null) return;
+        if (GameMult.getWinner() !== null) return;
 
-        const phase = Game.getPhase();
+        const phase = GameMult.getPhase();
         if (phase === 'move-pion' || phase === 'place-board') {
-            // Clear any pending AI timers in case AI was mid-turn
             clearAllAITimers();
             clearHighlights();
 
-            Game.skipTurn();
+            GameMult.skipTurn();
             updateGameUI();
             startTurnTimer();
 
-            // If next turn is AI, schedule it
-            if (Game.isAITurn()) {
+            if (GameMult.isAITurn()) {
                 scheduleAI(doAITurn, 800);
             }
         }
@@ -149,15 +146,15 @@ const UI = (() => {
     // INIT / EVENT LISTENERS
     // ============================================
     function init() {
-        // Home screen tiles
-        tilePenjumlahan.addEventListener('click', () => {
-            isAddActive = true;
-            showScreen('menu');
+        // Home screen tile
+        tilePerkalian.addEventListener('click', () => {
+            isMultActive = true;
+            showScreen('menu-mult');
         });
 
         // Back to home
         backHomeBtn.addEventListener('click', () => {
-            isAddActive = false;
+            isMultActive = false;
             showScreen('home');
         });
 
@@ -187,8 +184,8 @@ const UI = (() => {
             });
         });
 
-        // Coin buttons (scoped to penjumlahan coin screen)
-        $$('#coin-screen .coin-btn').forEach(btn => {
+        // Coin buttons
+        $$('#coin-screen-mult .coin-btn').forEach(btn => {
             btn.addEventListener('click', () => handleCoinChoice(btn.dataset.choice));
         });
 
@@ -198,37 +195,36 @@ const UI = (() => {
         // Placement confirm
         placementConfirmBtn.addEventListener('click', confirmPlacement);
 
-        // Win overlay (gated by isAddActive — shared with perkalian)
+        // Win overlay — handle when mult game is active
         playAgainBtn.addEventListener('click', () => {
-            if (!isAddActive) return;
+            if (!isMultActive) return;
             winOverlay.style.display = 'none';
             stopTurnTimer();
             startGame();
         });
         backMenuBtn.addEventListener('click', () => {
-            if (!isAddActive) return;
+            if (!isMultActive) return;
             winOverlay.style.display = 'none';
             stopTurnTimer();
-            showScreen('menu');
+            showScreen('menu-mult');
         });
 
-        // Draw overlay — "Lanjutkan" only shown for normal skip (no longer used)
+        // Draw overlay
         drawContinueBtn.addEventListener('click', () => {
-            if (!isAddActive) return;
+            if (!isMultActive) return;
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
-            Game.skipTurn();
+            GameMult.skipTurn();
             updateGameUI();
             startTurnTimer();
-            if (Game.isAITurn()) {
+            if (GameMult.isAITurn()) {
                 scheduleAI(doAITurn, 800);
             }
         });
 
-        // Draw overlay — game over buttons (auto-lose or draw)
         drawPlayAgainBtn.addEventListener('click', () => {
-            if (!isAddActive) return;
+            if (!isMultActive) return;
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
@@ -236,30 +232,32 @@ const UI = (() => {
             startGame();
         });
         drawBackMenuBtn.addEventListener('click', () => {
-            if (!isAddActive) return;
+            if (!isMultActive) return;
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
             stopTurnTimer();
-            showScreen('menu');
+            showScreen('menu-mult');
         });
 
-        // Event delegation — set up once, works for all future cells
+        // Event delegation — game board
         gameBoard.addEventListener('click', (e) => {
             const cell = e.target.closest('.board-cell');
             if (!cell) return;
             handleBoardClick(parseInt(cell.dataset.row), parseInt(cell.dataset.col));
         });
 
-        gameAddBoard.addEventListener('click', (e) => {
-            const cell = e.target.closest('.add-cell');
+        // Event delegation — multiplication board
+        gameMultBoard.addEventListener('click', (e) => {
+            const cell = e.target.closest('.mult-cell');
             if (!cell) return;
             if (!cell.classList.contains('clickable')) return;
-            handleAddBoardClick(parseInt(cell.dataset.row), parseInt(cell.dataset.col));
+            handleMultBoardClick(parseInt(cell.dataset.row), parseInt(cell.dataset.col));
         });
 
-        placementAddBoard.addEventListener('click', (e) => {
-            const cell = e.target.closest('.add-cell');
+        // Event delegation — placement multiplication board
+        placementMultBoard.addEventListener('click', (e) => {
+            const cell = e.target.closest('.mult-cell');
             if (!cell) return;
             if (!cell.classList.contains('clickable')) return;
             handlePlacementClick(parseInt(cell.dataset.row), parseInt(cell.dataset.col));
@@ -276,21 +274,21 @@ const UI = (() => {
                 homeScreen.classList.add('active');
                 document.title = 'Dolanan Matematika';
                 break;
-            case 'menu':
+            case 'menu-mult':
                 menuScreen.classList.add('active');
-                document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                document.title = 'Rumah Perkalian - Dolanan Matematika';
                 break;
-            case 'coin':
+            case 'coin-mult':
                 coinScreen.classList.add('active');
-                document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                document.title = 'Rumah Perkalian - Dolanan Matematika';
                 break;
-            case 'placement':
+            case 'placement-mult':
                 placementScreen.classList.add('active');
-                document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                document.title = 'Rumah Perkalian - Dolanan Matematika';
                 break;
-            case 'game':
+            case 'game-mult':
                 gameScreen.classList.add('active');
-                document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                document.title = 'Rumah Perkalian - Dolanan Matematika';
                 break;
         }
     }
@@ -304,7 +302,7 @@ const UI = (() => {
         const p1Name = player1Input.value.trim() || 'Pemain 1';
         const p2Name = selectedMode === 'ai' ? 'AI' : (player2Input.value.trim() || 'Pemain 2');
 
-        Game.init(selectedMode, p1Name, p2Name, selectedTimeLimit);
+        GameMult.init(selectedMode, p1Name, p2Name, selectedTimeLimit);
 
         // Reset coin UI
         coinEl.className = 'coin';
@@ -312,17 +310,16 @@ const UI = (() => {
         coinResult.style.display = 'none';
         coinInstruction.textContent = `${p1Name}, pilih sisi koin:`;
 
-        showScreen('coin');
+        showScreen('coin-mult');
     }
 
     // ============================================
     // COIN TOSS
     // ============================================
     function handleCoinChoice(choice) {
-        // If AI mode and it's AI's turn to choose (AI is player 2 — but player 1 always chooses first)
         coinChoices.style.display = 'none';
 
-        const { result, winner } = Game.coinToss(choice);
+        const { result, winner } = GameMult.coinToss(choice);
 
         // Animate coin
         coinEl.className = 'coin';
@@ -334,7 +331,7 @@ const UI = (() => {
         }
 
         setTimeout(() => {
-            const players = Game.getPlayers();
+            const players = GameMult.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
             const p1Display = escapeHTML(players[0].name);
             const resultLabel = result === 'head' ? 'Head' : 'Tail';
@@ -352,9 +349,9 @@ const UI = (() => {
     // PLACEMENT
     // ============================================
     function goToPlacement() {
-        Game.setPlacementPhase();
-        const players = Game.getPlayers();
-        const winner = Game.getCoinWinner();
+        GameMult.setPlacementPhase();
+        const players = GameMult.getPlayers();
+        const winner = GameMult.getCoinWinner();
 
         placementInstruction.textContent =
             `${players[winner].name}, letakkan pion pertama di salah satu baris. Klik angka yang diinginkan.`;
@@ -362,44 +359,43 @@ const UI = (() => {
         createPlacementBoard();
         updatePlacementCells();
         placementConfirmBtn.style.display = 'none';
-        showScreen('placement');
+        showScreen('placement-mult');
 
         // If AI won, and AI mode, AI places both pions
-        if (Game.isAIMode() && winner === 1) {
+        if (GameMult.isAIMode() && winner === 1) {
             scheduleAI(doAIPlacement, 800);
         }
     }
 
     function createPlacementBoard() {
-        placementAddBoard.innerHTML = '';
+        placementMultBoard.innerHTML = '';
         for (let r = 0; r < 2; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
+            for (let c = 0; c < MULT_COLS; c++) {
                 const cell = document.createElement('div');
-                cell.className = 'add-cell';
+                cell.className = 'mult-cell';
                 cell.dataset.row = r;
                 cell.dataset.col = c;
                 cell.textContent = c + 1;
-                placementAddBoard.appendChild(cell);
+                placementMultBoard.appendChild(cell);
             }
         }
     }
 
     function updatePlacementCells() {
-        const players = Game.getPlayers();
-        const state = Game.getState();
-        const cells = placementAddBoard.children;
+        const players = GameMult.getPlayers();
+        const state = GameMult.getState();
+        const cells = placementMultBoard.children;
 
-        // Compute disabled columns for second pion placement
+        // No disabled columns for multiplication placement
         let disabledCols = [];
         if (state.placementStep === 1) {
-            // One pion already placed — find its column
             const placedCol = players[0].pionPos !== null ? players[0].pionPos : players[1].pionPos;
-            disabledCols = Game.getDisabledColumnsForPlacement(placedCol);
+            disabledCols = GameMult.getDisabledColumnsForPlacement(placedCol);
         }
 
         for (let r = 0; r < 2; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                const idx = r * BOARD_SIZE + c;
+            for (let c = 0; c < MULT_COLS; c++) {
+                const idx = r * MULT_COLS + c;
                 const cell = cells[idx];
                 cell.classList.remove('pion-here-1', 'pion-here-2', 'clickable', 'disabled');
 
@@ -408,7 +404,7 @@ const UI = (() => {
                 }
 
                 if (state.phase === 'placement') {
-                    const unplaced = Game.getUnplacedRow();
+                    const unplaced = GameMult.getUnplacedRow();
                     const canClick = (unplaced === 'both') || (unplaced === r);
                     if (canClick && players[r].pionPos === null) {
                         if (disabledCols.includes(c)) {
@@ -423,31 +419,27 @@ const UI = (() => {
     }
 
     function handlePlacementClick(row, col) {
-        // Guard: if placing second pion, check disabled columns
-        const placementState = Game.getState();
+        // Guard: check disabled columns
+        const placementState = GameMult.getState();
         if (placementState.placementStep === 1) {
-            const players = Game.getPlayers();
+            const players = GameMult.getPlayers();
             const placedCol = players[0].pionPos !== null ? players[0].pionPos : players[1].pionPos;
-            const disabledCols = Game.getDisabledColumnsForPlacement(placedCol);
+            const disabledCols = GameMult.getDisabledColumnsForPlacement(placedCol);
             if (disabledCols.includes(col)) return;
         }
 
-        const result = Game.placeInitialPion(row, col);
+        const result = GameMult.placeInitialPion(row, col);
         if (!result) return;
 
-        const players = Game.getPlayers();
-        const winner = Game.getCoinWinner();
+        const players = GameMult.getPlayers();
+        const winner = GameMult.getCoinWinner();
 
         if (!result.done) {
-            // Need to place second pion
-            const unplaced = Game.getUnplacedRow();
+            const unplaced = GameMult.getUnplacedRow();
             placementInstruction.textContent =
                 `${players[winner].name}, sekarang letakkan pion kedua di baris ${unplaced === 0 ? '1 (Biru)' : '2 (Merah)'}.`;
             updatePlacementCells();
-
-            // If AI mode and human won coin toss, human places both — no AI action here
         } else {
-            // Both placed, go to game
             updatePlacementCells();
             placementInstruction.textContent = 'Kedua pion telah ditempatkan! Siap bermain.';
             placementConfirmBtn.style.display = 'block';
@@ -456,16 +448,16 @@ const UI = (() => {
 
     function confirmPlacement() {
         setupGameUI();
-        showScreen('game');
+        showScreen('game-mult');
 
         // After placement, coin winner immediately places on board
-        const sum = Game.getSum();
-        const availableCells = Game.getAvailableCellsForSum(sum);
-        const players = Game.getPlayers();
-        const current = Game.getCurrentPlayer();
+        const product = GameMult.getProduct();
+        const availableCells = GameMult.getAvailableCellsForProduct(product);
+        const players = GameMult.getPlayers();
+        const current = GameMult.getCurrentPlayer();
 
-        sumDisplay.textContent = sum;
-        phaseInstruction.textContent = `${players[current].name}, pilih cell bernilai ${sum} di Board Permainan`;
+        productDisplay.textContent = product;
+        phaseInstruction.textContent = `${players[current].name}, pilih cell bernilai ${product} di Board Permainan`;
 
         // Start turn timer for the first board placement
         startTurnTimer();
@@ -473,36 +465,32 @@ const UI = (() => {
         if (availableCells.length > 0) {
             highlightAvailableCells(availableCells);
         } else {
-            // No cells for this sum after initial placement
-            // Coin winner placed both pions, resulting sum unavailable
-            const autoResult = Game.checkAutoGameOver(current);
+            const autoResult = GameMult.checkAutoGameOver(current);
             if (autoResult.autoLose) {
-                showAutoLoseOverlay(current, sum);
+                showAutoLoseOverlay(current, product);
             } else {
                 showDrawOverlay();
             }
         }
 
         // If AI won coin toss, AI places on board
-        if (Game.isAITurn()) {
-            scheduleAI(() => doAIFirstPlacement(sum, availableCells), 800);
+        if (GameMult.isAITurn()) {
+            scheduleAI(() => doAIFirstPlacement(product, availableCells), 800);
         }
     }
 
     function doAIPlacement() {
         // AI places first pion
-        const col1 = AI.chooseInitialPlacement();
-        // Place on row 1 (AI's row) first, or row 0
-        const unplaced1 = Game.getUnplacedRow();
+        const col1 = AIMult.chooseInitialPlacement();
+        const unplaced1 = GameMult.getUnplacedRow();
         let firstRow = 1; // AI prefers its own row first
         if (unplaced1 !== 'both' && unplaced1 !== 1) firstRow = 0;
 
         handlePlacementClick(firstRow, col1);
 
         scheduleAI(() => {
-            // AI places second pion, passing first pion's column for constraint
-            const col2 = AI.chooseInitialPlacement(col1);
-            const unplaced2 = Game.getUnplacedRow();
+            const col2 = AIMult.chooseInitialPlacement(col1);
+            const unplaced2 = GameMult.getUnplacedRow();
             if (unplaced2 !== null && unplaced2 !== 'both') {
                 handlePlacementClick(unplaced2, col2);
             }
@@ -513,21 +501,18 @@ const UI = (() => {
         }, 800);
     }
 
-    // AI places on board right after initial placement (when AI won coin toss)
-    function doAIFirstPlacement(sum, availableCells) {
+    function doAIFirstPlacement(product, availableCells) {
         if (availableCells.length === 0) {
-            Game.skipTurn();
+            GameMult.skipTurn();
             updateGameUI();
             startTurnTimer();
             return;
         }
 
-        // Use AI evaluation to pick the best cell
-        const board = Game.getBoard();
+        const board = GameMult.getBoard();
         let bestScore = -Infinity;
         let bestCell = availableCells[0];
         for (const cell of availableCells) {
-            // Simple scoring: center preference + random
             const centerDist = Math.abs(cell.row - 4.5) + Math.abs(cell.col - 4.5);
             const score = (10 - centerDist) + Math.random() * 5;
             if (score > bestScore) {
@@ -536,7 +521,7 @@ const UI = (() => {
             }
         }
 
-        const placeResult = Game.placeOnBoard(bestCell.row, bestCell.col);
+        const placeResult = GameMult.placeOnBoard(bestCell.row, bestCell.col);
         clearHighlights();
 
         if (placeResult && placeResult.win) {
@@ -555,19 +540,19 @@ const UI = (() => {
     // GAME UI
     // ============================================
     function setupGameUI() {
-        const players = Game.getPlayers();
+        const players = GameMult.getPlayers();
         p1NameDisplay.textContent = players[0].name;
         p2NameDisplay.textContent = players[1].name;
 
         createGameBoard();
-        createGameAddBoard();
+        createGameMultBoard();
         updateGameUI();
     }
 
     function createGameBoard() {
         gameBoard.innerHTML = '';
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
+        for (let r = 0; r < MULT_BOARD_SIZE; r++) {
+            for (let c = 0; c < MULT_BOARD_SIZE; c++) {
                 const cell = document.createElement('div');
                 cell.className = 'board-cell';
                 cell.dataset.row = r;
@@ -578,11 +563,11 @@ const UI = (() => {
     }
 
     function updateBoardCells() {
-        const board = Game.getBoard();
+        const board = GameMult.getBoard();
         const cells = gameBoard.children;
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                const idx = r * BOARD_SIZE + c;
+        for (let r = 0; r < MULT_BOARD_SIZE; r++) {
+            for (let c = 0; c < MULT_BOARD_SIZE; c++) {
+                const idx = r * MULT_BOARD_SIZE + c;
                 const cell = cells[idx];
                 const data = board[r][c];
                 cell.textContent = data.value;
@@ -593,36 +578,36 @@ const UI = (() => {
         }
     }
 
-    function createGameAddBoard() {
-        gameAddBoard.innerHTML = '';
+    function createGameMultBoard() {
+        gameMultBoard.innerHTML = '';
         for (let r = 0; r < 2; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
+            for (let c = 0; c < MULT_COLS; c++) {
                 const cell = document.createElement('div');
-                cell.className = 'add-cell';
+                cell.className = 'mult-cell';
                 cell.dataset.row = r;
                 cell.dataset.col = c;
                 cell.textContent = c + 1;
-                gameAddBoard.appendChild(cell);
+                gameMultBoard.appendChild(cell);
             }
         }
     }
 
-    function updateAddBoardCells() {
-        const players = Game.getPlayers();
-        const state = Game.getState();
-        const cells = gameAddBoard.children;
-        const currentPlayer = Game.getCurrentPlayer();
-        const isFirst = Game.isFirstTurn();
+    function updateMultBoardCells() {
+        const players = GameMult.getPlayers();
+        const state = GameMult.getState();
+        const cells = gameMultBoard.children;
+        const currentPlayer = GameMult.getCurrentPlayer();
+        const isFirst = GameMult.isFirstTurn();
 
         // Get disabled columns based on phase
         let disabledCols = null;
         if (state.phase === 'move-pion') {
-            disabledCols = Game.getDisabledColumns(currentPlayer);
+            disabledCols = GameMult.getDisabledColumns(currentPlayer);
         }
 
         for (let r = 0; r < 2; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                const idx = r * BOARD_SIZE + c;
+            for (let c = 0; c < MULT_COLS; c++) {
+                const idx = r * MULT_COLS + c;
                 const cell = cells[idx];
                 cell.classList.remove('pion-here-1', 'pion-here-2', 'clickable', 'disabled');
 
@@ -632,21 +617,18 @@ const UI = (() => {
 
                 if (state.phase === 'move-pion') {
                     let isClickable = false;
-                    if (isFirst && Game.getCoinWinner() === currentPlayer) {
+                    if (isFirst && GameMult.getCoinWinner() === currentPlayer) {
                         isClickable = true;
                     } else if (r === currentPlayer) {
                         isClickable = true;
                     }
 
                     if (isClickable) {
-                        // Check if this column is disabled (sum would exceed 18)
                         let isDisabled = false;
                         if (disabledCols) {
                             if (isFirst) {
-                                // disabledCols is keyed by row: { 0: [...], 1: [...] }
                                 isDisabled = disabledCols[r] && disabledCols[r].includes(c);
                             } else {
-                                // disabledCols is a flat array for the current player's row
                                 isDisabled = disabledCols.includes(c);
                             }
                         }
@@ -663,9 +645,9 @@ const UI = (() => {
     }
 
     function updateGameUI() {
-        const state = Game.getState();
-        const players = Game.getPlayers();
-        const currentPlayer = Game.getCurrentPlayer();
+        const state = GameMult.getState();
+        const players = GameMult.getPlayers();
+        const currentPlayer = GameMult.getCurrentPlayer();
 
         // Turn indicator
         turnIndicator.textContent = `Giliran: ${players[currentPlayer].name}`;
@@ -679,53 +661,52 @@ const UI = (() => {
         p1Score.textContent = `${players[0].pionsOnBoard} pion`;
         p2Score.textContent = `${players[1].pionsOnBoard} pion`;
 
-        // Sum
-        const sum = Game.getSum();
-        sumDisplay.textContent = sum !== null ? sum : '—';
+        // Product
+        const product = GameMult.getProduct();
+        productDisplay.textContent = product !== null ? product : '—';
 
         // Phase instruction
         if (state.phase === 'move-pion') {
-            if (Game.isFirstTurn()) {
-                phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan salah satu pion di Board Penjumlahan (giliran pertama: bisa gerakkan pion manapun)`;
+            if (GameMult.isFirstTurn()) {
+                phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan salah satu pion di Board Perkalian (giliran pertama: bisa gerakkan pion manapun)`;
             } else {
-                phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan pion Anda di Board Penjumlahan`;
+                phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan pion Anda di Board Perkalian`;
             }
         } else if (state.phase === 'place-board') {
-            phaseInstruction.textContent = `Pilih cell bernilai ${sum} di Board Permainan`;
+            phaseInstruction.textContent = `Pilih cell bernilai ${product} di Board Permainan`;
         }
 
         // Update board cells (no DOM recreation)
-        updateAddBoardCells();
+        updateMultBoardCells();
         updateBoardCells();
     }
 
     // ============================================
     // GAME INTERACTIONS
     // ============================================
-    function handleAddBoardClick(row, col) {
-        if (Game.getPhase() !== 'move-pion') return;
-        if (Game.isAITurn()) return;
+    function handleMultBoardClick(row, col) {
+        if (GameMult.getPhase() !== 'move-pion') return;
+        if (GameMult.isAITurn()) return;
 
-        // Guard: prevent selection of disabled columns (sum > 18)
-        const currentPlayer = Game.getCurrentPlayer();
-        const isFirst = Game.isFirstTurn();
-        const disabledCols = Game.getDisabledColumns(currentPlayer);
+        // Guard: prevent selection of disabled columns
+        const currentPlayer = GameMult.getCurrentPlayer();
+        const isFirst = GameMult.isFirstTurn();
+        const disabledCols = GameMult.getDisabledColumns(currentPlayer);
         if (isFirst) {
             if (disabledCols[row] && disabledCols[row].includes(col)) return;
         } else {
             if (disabledCols.includes(col)) return;
         }
 
-        const result = Game.movePion(row, col);
+        const result = GameMult.movePion(row, col);
         if (!result) return;
 
         if (result.availableCells.length === 0) {
-            // No available cells — check if player had a safe move
             updateGameUI();
             highlightAvailableCells([]);
-            const autoResult = Game.checkAutoGameOver(currentPlayer);
+            const autoResult = GameMult.checkAutoGameOver(currentPlayer);
             if (autoResult.autoLose) {
-                showAutoLoseOverlay(currentPlayer, result.sum);
+                showAutoLoseOverlay(currentPlayer, result.product);
             } else {
                 showDrawOverlay();
             }
@@ -737,14 +718,14 @@ const UI = (() => {
     }
 
     function handleBoardClick(row, col) {
-        if (Game.getPhase() !== 'place-board') return;
-        if (Game.isAITurn()) return;
+        if (GameMult.getPhase() !== 'place-board') return;
+        if (GameMult.isAITurn()) return;
 
-        const board = Game.getBoard();
-        const sum = Game.getSum();
-        if (board[row][col].value !== sum || board[row][col].owner !== null) return;
+        const board = GameMult.getBoard();
+        const product = GameMult.getProduct();
+        if (board[row][col].value !== product || board[row][col].owner !== null) return;
 
-        const result = Game.placeOnBoard(row, col);
+        const result = GameMult.placeOnBoard(row, col);
         if (!result) return;
 
         clearHighlights();
@@ -761,17 +742,16 @@ const UI = (() => {
         startTurnTimer();
 
         // AI's turn?
-        if (Game.isAITurn()) {
+        if (GameMult.isAITurn()) {
             scheduleAI(doAITurn, 800);
         }
     }
 
     function highlightAvailableCells(cells) {
-        // Clear existing highlights
         clearHighlights();
 
         cells.forEach(({ row, col }) => {
-            const idx = row * BOARD_SIZE + col;
+            const idx = row * MULT_BOARD_SIZE + col;
             const cellEl = gameBoard.children[idx];
             if (cellEl && !cellEl.classList.contains('taken-1') && !cellEl.classList.contains('taken-2')) {
                 cellEl.classList.add('highlight');
@@ -780,40 +760,39 @@ const UI = (() => {
     }
 
     function clearHighlights() {
-        $$('.board-cell.highlight').forEach(el => el.classList.remove('highlight'));
+        gameBoard.querySelectorAll('.board-cell.highlight').forEach(el => el.classList.remove('highlight'));
     }
 
     function highlightWinCells(cells) {
         cells.forEach(({ row, col }) => {
-            const idx = row * BOARD_SIZE + col;
+            const idx = row * MULT_BOARD_SIZE + col;
             const cellEl = gameBoard.children[idx];
             if (cellEl) cellEl.classList.add('win-cell');
         });
     }
 
     function updateScores() {
-        const players = Game.getPlayers();
+        const players = GameMult.getPlayers();
         p1Score.textContent = `${players[0].pionsOnBoard} pion`;
         p2Score.textContent = `${players[1].pionsOnBoard} pion`;
     }
 
     function showWinOverlay(winnerIdx) {
         stopTurnTimer();
-        const players = Game.getPlayers();
+        const players = GameMult.getPlayers();
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
         winOverlay.style.display = 'flex';
     }
 
-    // Show auto-lose overlay (opponent wins because player chose a bad number)
-    function showAutoLoseOverlay(loserIdx, sum) {
+    function showAutoLoseOverlay(loserIdx, product) {
         stopTurnTimer();
-        const players = Game.getPlayers();
+        const players = GameMult.getPlayers();
         const winner = 1 - loserIdx;
-        Game.setWinner(winner);
+        GameMult.setWinner(winner);
         drawTitle.textContent = '🚫 Game Over!';
         drawMessage.textContent =
-            `${players[loserIdx].name} memilih angka yang menghasilkan jumlah ${sum}, ` +
+            `${players[loserIdx].name} memilih angka yang menghasilkan hasil kali ${product}, ` +
             `yang tidak tersedia di Board Permainan. ` +
             `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
@@ -821,10 +800,9 @@ const UI = (() => {
         drawOverlay.style.display = 'flex';
     }
 
-    // Show draw overlay (no safe moves exist for any position)
     function showDrawOverlay() {
         stopTurnTimer();
-        Game.setDraw();
+        GameMult.setDraw();
         drawTitle.textContent = '🤝 Seri!';
         drawMessage.textContent =
             'Tidak ada langkah tersisa yang menghasilkan angka yang tersedia di Board Permainan. ' +
@@ -838,23 +816,22 @@ const UI = (() => {
     // AI TURN
     // ============================================
     function doAITurn() {
-        if (!Game.isAITurn()) return;
-        if (Game.getWinner() !== null) return;
+        if (!GameMult.isAITurn()) return;
+        if (GameMult.getWinner() !== null) return;
 
-        const move = AI.chooseMove();
+        const move = AIMult.chooseMove();
 
-        // First: move AI pion on addition board
-        const moveResult = Game.movePion(1, move.pionCol);
+        // First: move AI pion on multiplication board
+        const moveResult = GameMult.movePion(1, move.pionCol);
         updateGameUI();
 
         if (!moveResult) return;
 
         if (move.noMoves || moveResult.availableCells.length === 0) {
-            // No moves available — check if AI had a safe move
             highlightAvailableCells([]);
-            const autoResult = Game.checkAutoGameOver(1);
+            const autoResult = GameMult.checkAutoGameOver(1);
             if (autoResult.autoLose) {
-                showAutoLoseOverlay(1, moveResult.sum);
+                showAutoLoseOverlay(1, moveResult.product);
             } else {
                 showDrawOverlay();
             }
@@ -865,7 +842,7 @@ const UI = (() => {
 
         // Then: place on board after a short delay
         scheduleAI(() => {
-            const placeResult = Game.placeOnBoard(move.boardRow, move.boardCol);
+            const placeResult = GameMult.placeOnBoard(move.boardRow, move.boardCol);
             clearHighlights();
 
             if (!placeResult) {
@@ -882,7 +859,7 @@ const UI = (() => {
             }
 
             // Add placed animation
-            const idx = move.boardRow * BOARD_SIZE + move.boardCol;
+            const idx = move.boardRow * MULT_BOARD_SIZE + move.boardCol;
             const cellEl = gameBoard.children[idx];
             if (cellEl) {
                 cellEl.classList.add('placed-anim');
@@ -903,5 +880,5 @@ const UI = (() => {
         init();
     }
 
-    return { init, isAddActive: () => isAddActive, setAddActive: (val) => { isAddActive = val; } };
+    return { init, isMultActive: () => isMultActive, setMultActive: (val) => { isMultActive = val; } };
 })();

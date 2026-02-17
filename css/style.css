@@ -59,6 +59,14 @@ body {
     overflow: hidden;
 }
 
+#game-screen-mult.active {
+    display: block;
+    padding: 0;
+    min-height: auto;
+    height: 100vh;
+    overflow: hidden;
+}
+
 /* --- Overlay --- */
 .overlay {
     position: fixed;
@@ -135,6 +143,93 @@ body {
 
 .secondary-btn:hover {
     background: var(--bg-cell-hover);
+}
+
+/* ============================================
+   HOME SCREEN
+   ============================================ */
+.home-container {
+    text-align: center;
+    max-width: 560px;
+    width: 100%;
+}
+
+.home-subtitle {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    margin-bottom: 36px;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.game-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: var(--text);
+    font-family: inherit;
+}
+
+.game-tile:not(.disabled):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+    border-color: var(--blue);
+}
+
+.game-tile:not(.disabled):active {
+    transform: translateY(-1px);
+}
+
+.game-tile.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.tile-icon {
+    font-size: 3rem;
+}
+
+.tile-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.tile-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.tile-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, var(--gold), #f59e0b);
+    color: #0f172a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.back-home-btn {
+    width: 100%;
+    margin-top: 8px;
 }
 
 /* ============================================
@@ -247,6 +342,47 @@ body {
 #start-btn {
     width: 100%;
     margin-top: 10px;
+}
+
+/* Timer Selection */
+.timer-selection {
+    margin-bottom: 20px;
+}
+
+.timer-selection h3 {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.timer-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.timer-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.timer-btn:hover {
+    border-color: var(--blue-light);
+}
+
+.timer-btn.selected {
+    border-color: var(--blue);
+    background: rgba(59, 130, 246, 0.1);
 }
 
 /* ============================================
@@ -457,6 +593,30 @@ body {
     white-space: nowrap;
 }
 
+.turn-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.turn-timer {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    text-align: center;
+    padding: 2px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: color 0.3s, background 0.3s;
+}
+
+.turn-timer.timer-warning {
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.15);
+    animation: timerPulse 1s ease-in-out infinite;
+}
+
 /* Sum Display */
 .sum-display {
     text-align: center;
@@ -569,6 +729,73 @@ body {
     padding: 6px;
 }
 
+/* Multiplication Board (2x9) */
+.multiplication-board-section {
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.multiplication-board-section h3 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.multiplication-board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 3px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 6px;
+}
+
+.mult-cell {
+    padding: 6px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-cell);
+    border-radius: 6px;
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    font-weight: 700;
+    cursor: default;
+    transition: background 0.15s, transform 0.15s;
+    position: relative;
+    user-select: none;
+}
+
+.mult-cell.clickable {
+    cursor: pointer;
+}
+
+.mult-cell.clickable:hover {
+    background: var(--bg-cell-hover);
+    transform: scale(1.05);
+}
+
+.mult-cell.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.mult-cell.pion-here-1 {
+    background: var(--blue);
+    color: white;
+    box-shadow: 0 0 10px var(--blue-light);
+    border-radius: 50%;
+}
+
+.mult-cell.pion-here-2 {
+    background: var(--red);
+    color: white;
+    box-shadow: 0 0 10px var(--red-light);
+    border-radius: 50%;
+}
+
 .add-cell {
     padding: 6px 2px;
     display: flex;
@@ -666,10 +893,25 @@ body {
     100% { transform: rotateY(1980deg); }
 }
 
+@keyframes timerPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.08); }
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 600px) {
+    .game-grid {
+        grid-template-columns: 1fr;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .game-tile {
+        padding: 28px 16px;
+    }
+
     .game-title {
         font-size: 2rem;
     }
@@ -680,6 +922,11 @@ body {
     }
 
     .add-cell {
+        padding: 5px 2px;
+        font-size: 0.7rem;
+    }
+
+    .mult-cell {
         padding: 5px 2px;
         font-size: 0.7rem;
     }
@@ -697,6 +944,15 @@ body {
     .turn-indicator {
         width: 100%;
         order: -1;
+        font-size: 0.85rem;
+    }
+
+    .turn-center {
+        width: 100%;
+        order: -1;
+    }
+
+    .turn-timer {
         font-size: 0.85rem;
     }
 
@@ -736,6 +992,11 @@ body {
         padding: 4px;
     }
 
+    .multiplication-board {
+        gap: 2px;
+        padding: 4px;
+    }
+
     .phase-instruction {
         font-size: 0.75rem;
         padding: 4px;
@@ -758,7 +1019,17 @@ body {
         padding: 3px;
     }
 
+    .multiplication-board {
+        gap: 1px;
+        padding: 3px;
+    }
+
     .add-cell {
+        padding: 4px 1px;
+        font-size: 0.6rem;
+    }
+
+    .mult-cell {
         padding: 4px 1px;
         font-size: 0.6rem;
     }
