@@ -297,11 +297,78 @@
 - Content management (puzzles, lessons)
 - System health monitoring
 
-### 5.6 — Mobile Apps (Optional, Long-term)
-- Nuxt 3 + Capacitor for hybrid iOS/Android apps
-- OR React Native / Flutter for native feel
-- Push notifications via native APIs
-- App Store / Play Store listing
+---
+
+## Phase 6: Mobile Apps — Android & iOS (Month 37–48)
+
+> Bring Dolanan Matematika to every pocket — native mobile experience on Android and iOS.
+
+### 6.1 — Technology Decision & Setup
+- **Recommended approach**: Capacitor (wraps the existing Nuxt 3 web app as a native shell)
+  - Maximizes code reuse (~90% shared with web)
+  - Native plugin access (push notifications, haptics, in-app purchase)
+  - Single codebase for Android + iOS
+- **Alternative** (if native feel is critical): Flutter or React Native rebuild
+  - Higher effort but smoother animations, better platform conventions
+  - Reuse `packages/shared` game logic via wasm/JS bridge
+- Set up mobile development environment (Xcode, Android Studio)
+- Configure Capacitor project with Nuxt 3 output
+
+### 6.2 — Android App (Month 37–40)
+- Build and test Capacitor Android shell
+- Native splash screen and app icon (adaptive icons)
+- Deep linking support (`dolanan.id/game/{id}` → opens app)
+- Push notifications via Firebase Cloud Messaging (FCM)
+- Haptic feedback on move placement, win, timer tick
+- Handle back button navigation (Android-specific)
+- Offline mode: local play + vs AI works without internet
+- Performance optimization for low-end Android devices
+- Internal testing track on Google Play Console
+- Open beta testing
+- **Google Play Store listing** (title, description, screenshots, ASO)
+- Target: Android 8.0+ (API 26+)
+
+### 6.3 — iOS App (Month 40–43)
+- Build and test Capacitor iOS shell
+- Native splash screen and app icon (all required sizes)
+- Deep linking / Universal Links
+- Push notifications via APNs
+- Haptic feedback (Taptic Engine integration)
+- Handle iOS Safe Area (notch, Dynamic Island, home indicator)
+- Offline mode: local play + vs AI
+- TestFlight beta testing
+- **App Store listing** (title, description, screenshots, App Preview video, ASO)
+- App Store Review compliance (guidelines 4.2, 3.1.1 for in-app purchases)
+- Target: iOS 15.0+
+
+### 6.4 — Mobile-Specific Features
+- In-app purchase integration (StoreKit for iOS, Google Play Billing for Android)
+  - "Dolanan Plus" subscription via native IAP
+  - Cosmetic purchases
+- Biometric login (Face ID / Touch ID / fingerprint)
+- Share game results to WhatsApp, Instagram Stories, etc. (native share sheet)
+- Widget support: daily puzzle widget (iOS 16+ / Android 12+)
+- Background game notifications ("It's your turn!" for correspondence mode)
+- Adaptive layout for tablets (iPad, Android tablets)
+- Dark/light mode synced with system preference
+
+### 6.5 — App Store Optimization & Launch
+- Localized store listings (Indonesian, English)
+- Screenshot sets for all device sizes
+- App Preview / promo video
+- Rating prompt (in-app review API) after 5th game
+- Respond to user reviews
+- Track install/uninstall metrics, crash reports (Firebase Crashlytics)
+- A/B test store listing assets
+
+### 6.6 — Post-Launch Mobile Iteration
+- Monitor crash-free rate (target: >99.5%)
+- Weekly OTA updates via Capacitor Live Update (skip store review for web layer changes)
+- Collect mobile-specific feedback (touch targets, gestures, performance)
+- Add platform-specific enhancements based on user feedback
+- Consider Wear OS / watchOS companion (daily puzzle notification + quick answer)
+
+**Deliverables**: Published Android (Google Play) and iOS (App Store) apps with native features, IAP, push notifications, and offline support
 
 ---
 
@@ -399,6 +466,10 @@
 | 3     | Tournament participation            | 10+ per event  |
 | 4     | Daily active users                  | 100+           |
 | 5     | Premium conversion rate             | 3-5%           |
+| 6     | Android app published on Play Store | Live           |
+| 6     | iOS app published on App Store      | Live           |
+| 6     | Mobile installs (first 6 months)    | 1,000+         |
+| 6     | Mobile crash-free rate              | >99.5%         |
 
 ---
 
