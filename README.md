@@ -1,13 +1,15 @@
-# � Dolanan Matematika
+# 🎲 Dolanan Matematika
 
-**Dolanan Matematika** (Math Play) is a two-player strategy board game built with vanilla HTML, CSS, and JavaScript. Players compete to be the first to align **4 consecutive pions** on a 10×10 board by strategically manipulating shared addition pions to control which cells they can claim.
+**Dolanan Matematika** (Math Play) is a collection of two-player math strategy board games built with vanilla HTML, CSS, and JavaScript. The first available game — **Rumah Penjumlahan** (Addition House) — challenges players to align **4 consecutive pions** on a 10×10 board by strategically manipulating shared addition pions to control which cells they can claim. More games are coming soon!
 
 ---
 
 ## Table of Contents
 
 - [Features](#features)
+- [Available Games](#available-games)
 - [How to Play](#how-to-play)
+  - [Home Screen](#home-screen)
   - [Game Setup](#game-setup)
   - [Coin Toss](#coin-toss)
   - [Initial Placement](#initial-placement)
@@ -19,6 +21,7 @@
   - [Pion Movement Rules](#pion-movement-rules)
   - [First Turn Special Rule](#first-turn-special-rule)
   - [Turn Skipping](#turn-skipping)
+  - [Turn Timer](#turn-timer)
 - [AI Opponent](#ai-opponent)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -29,7 +32,9 @@
 
 ## Features
 
+- **Game Collection Hub**: Home screen with multiple math games (more coming soon!)
 - **Two Game Modes**: Local PvP (Player vs Player) or PvAI (Player vs AI)
+- **Configurable Turn Timer**: Choose 15s, 30s, 60s, or unlimited time per turn
 - **Coin Toss Mechanic**: Animated coin flip to fairly decide who places first
 - **Strategic Depth**: Shared pion positions mean every move affects your opponent's options
 - **AI Opponent**: Heuristic-based AI that evaluates streaks, blocks threats, and prefers center control
@@ -39,7 +44,20 @@
 
 ---
 
+## Available Games
+
+| Game | Status | Description |
+|------|--------|-------------|
+| ➕ **Rumah Penjumlahan** | ✅ Available | Addition-based strategy board game |
+| ✖️ **Rumah Perkalian** | 🔜 Coming Soon | Multiplication-based strategy board game |
+
+---
+
 ## How to Play
+
+### Home Screen
+
+Launch the app to see the **game selection hub**. Pick a game tile to begin — currently, **Rumah Penjumlahan** (Addition House) is available. More games will be added over time.
 
 ### Game Setup
 
@@ -47,8 +65,9 @@
 2. Choose a game mode:
    - **👥 PvP Lokal** — Two human players on the same device.
    - **🤖 vs AI** — Play against the computer.
-3. If PvP, enter **Player 2's name** (Red pion).
-4. Click **"Mulai Permainan"** (Start Game).
+3. Select a **turn timer** (15s, 30s, 60s, or unlimited).
+4. If PvP, enter **Player 2's name** (Red pion).
+5. Click **"Mulai Permainan"** (Start Game).
 
 ### Coin Toss
 
@@ -117,6 +136,19 @@ On the **very first turn** (belonging to the coin toss winner), the player may m
 ### Turn Skipping
 
 If the current sum has **no available (unclaimed) cells** on the Game Board, the turn is automatically **skipped** with a notification overlay. Play passes to the next player.
+
+### Turn Timer
+
+Each turn can be time-limited. Players select a timer duration before the game starts:
+
+| Option | Description |
+|--------|-------------|
+| **15 detik** | 15 seconds per turn |
+| **30 detik** | 30 seconds per turn (default) |
+| **60 detik** | 60 seconds per turn |
+| **∞ Tanpa Batas** | No time limit |
+
+When the timer runs out, the turn is automatically skipped to the next player.
 
 ---
 
