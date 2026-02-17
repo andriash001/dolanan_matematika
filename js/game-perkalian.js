@@ -1,6 +1,7 @@
 /* ============================================
    DOLANAN MATEMATIKA - GAME LOGIC (PERKALIAN)
    ============================================ */
+"use strict";
 
 // ---- Global Constants for Multiplication Game ----
 const MULT_BOARD_SIZE = 10;

@@ -1,6 +1,6 @@
 # 🎲 Dolanan Matematika
 
-**Dolanan Matematika** (Math Play) is a collection of two-player math strategy board games built with vanilla HTML, CSS, and JavaScript. Two games are currently available:
+**Dolanan Matematika** (Math Play) is a collection of two-player math strategy board games designed for **elementary school kids (6–12 years old)**, built with vanilla HTML, CSS, and JavaScript. Two games are currently available:
 
 - **Rumah Penjumlahan** (Addition House) — manipulate shared addition pions to control which cells you can claim.
 - **Rumah Perkalian** (Multiplication House) — manipulate shared multiplication pions using products instead of sums.
@@ -42,8 +42,14 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **Coin Toss Mechanic**: Animated coin flip to fairly decide who places first
 - **Strategic Depth**: Shared pion positions mean every move affects your opponent's options
 - **AI Opponent**: Heuristic-based AI that evaluates streaks, blocks threats, and prefers center control
-- **Responsive Design**: Plays well on desktop and mobile screens
+- **Mobile-Friendly**: Responsive layout with `100dvh` viewport fix, touch-optimized targets, and landscape support
+- **Sound Effects**: Web Audio API-generated sounds for cell placement, coin toss, win celebration, timer warnings, and more — with mute toggle
+- **How to Play Guide**: In-app tutorial modal ("Cara Bermain") with kid-friendly rules in Indonesian, plus a floating help button during gameplay
+- **Accessibility**: ARIA live regions, grid roles, semantic HTML, and colorblind-friendly player symbols (● / ▲)
+- **Player Name Persistence**: Names saved in `localStorage` across sessions
+- **Leave-Game Protection**: Browser warning when navigating away mid-game
 - **Dark Theme UI**: Modern, polished interface with smooth animations
+- **SEO & Social Sharing**: Meta description, Open Graph tags, theme-color, Apple web app meta, and SVG favicon
 - **No Dependencies**: Pure HTML/CSS/JS — no frameworks or build tools required
 
 ---
@@ -201,9 +207,10 @@ For **initial placement**, the AI prefers central columns for maximum flexibilit
 
 ## Tech Stack
 
-- **HTML5** — Semantic markup, single-page structure
-- **CSS3** — Custom properties, CSS Grid, Flexbox, keyframe animations
-- **Vanilla JavaScript** — ES6+ module pattern (IIFE), no dependencies
+- **HTML5** — Semantic markup (`<main>`, ARIA attributes), single-page structure
+- **CSS3** — Custom properties, CSS Grid, Flexbox, keyframe animations, `100dvh` viewport, responsive media queries (600px, 400px breakpoints + landscape)
+- **Vanilla JavaScript** — ES6+ strict mode, IIFE module pattern, Web Audio API for sound effects, `localStorage` for persistence
+- **Zero Dependencies** — No frameworks, no build tools, no external assets
 
 ---
 
@@ -211,13 +218,15 @@ For **initial placement**, the AI prefers central columns for maximum flexibilit
 
 ```
 dolanan_matematika/
-├── index.html          # Single-page HTML (all screens for both games)
+├── index.html             # Single-page HTML (all screens for both games)
+├── favicon.svg            # SVG favicon (game board icon)
 ├── css/
-│   └── style.css       # All styles, animations, responsive design
+│   └── style.css          # All styles, animations, responsive design
 ├── js/
-│   ├── game.js         # Penjumlahan: core game logic (Game module)
-│   ├── ai.js           # Penjumlahan: AI opponent (AI module)
-│   ├── ui.js           # Penjumlahan: DOM & event handling (UI module)
+│   ├── sounds.js          # Sound effects engine (Web Audio API, SFX module)
+│   ├── game.js            # Penjumlahan: core game logic (Game module)
+│   ├── ai.js              # Penjumlahan: AI opponent (AI module)
+│   ├── ui.js              # Penjumlahan: DOM & event handling (UI module)
 │   ├── game-perkalian.js  # Perkalian: core game logic (GameMult module)
 │   ├── ai-perkalian.js    # Perkalian: AI opponent (AIMult module)
 │   └── ui-perkalian.js    # Perkalian: DOM & event handling (UIMult module)
@@ -234,8 +243,9 @@ Each game has its own set of three modules that follow the same architecture:
 | **Game Logic** | `Game` | `GameMult` | Board generation, move validation, win detection, turn management |
 | **AI** | `AI` | `AIMult` | Heuristic move evaluation, initial placement strategy |
 | **UI** | `UI` | `UIMult` | DOM rendering, screen transitions, event handling, timer |
+| **Sound** | `SFX` (shared) | `SFX` (shared) | Web Audio API tone generation, mute toggle, localStorage persistence |
 
-The games are fully independent — separate files, separate state, separate screens. The home screen and win/draw overlays are shared. This architecture ensures changes to one game never break the other.
+The games are fully independent — separate files, separate state, separate screens. The home screen, win/draw overlays, how-to-play modal, sound system, and floating buttons are shared. This architecture ensures changes to one game never break the other.
 
 ---
 

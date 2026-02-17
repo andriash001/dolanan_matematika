@@ -1,6 +1,7 @@
 /* ============================================
    DOLANAN MATEMATIKA - UI / DOM CONTROLLER (PERKALIAN)
    ============================================ */
+"use strict";
 
 const UIMult = (() => {
     // ---- DOM References ----
@@ -104,6 +105,11 @@ const UIMult = (() => {
             timerValueEl.textContent = turnTimeRemaining;
             if (turnTimeRemaining <= 5) {
                 turnTimerEl.classList.add('timer-warning');
+                if (turnTimeRemaining <= 3) {
+                    SFX.timerUrgent();
+                } else {
+                    SFX.timerTick();
+                }
             }
             if (turnTimeRemaining <= 0) {
                 onTurnTimeout();
@@ -240,6 +246,21 @@ const UIMult = (() => {
             showScreen('menu-mult');
         });
 
+        // Restore saved player names
+        try {
+            const saved1 = localStorage.getItem('dolanan_p1_name_mult');
+            const saved2 = localStorage.getItem('dolanan_p2_name_mult');
+            if (saved1) player1Input.value = saved1;
+            if (saved2) player2Input.value = saved2;
+        } catch (e) { /* ignore */ }
+
+        // Warn before leaving mid-game
+        window.addEventListener('beforeunload', (e) => {
+            if (isMultActive && GameMult.getPhase() !== 'menu' && GameMult.getWinner() === null) {
+                e.preventDefault();
+            }
+        });
+
         // Event delegation — game board
         gameBoard.addEventListener('click', (e) => {
             const cell = e.target.closest('.board-cell');
@@ -269,26 +290,32 @@ const UIMult = (() => {
     // ============================================
     function showScreen(name) {
         $$('.screen').forEach(s => s.classList.remove('active'));
+        const floatingHelp = document.getElementById('floating-help-btn');
         switch(name) {
             case 'home':
                 homeScreen.classList.add('active');
                 document.title = 'Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'none';
                 break;
             case 'menu-mult':
                 menuScreen.classList.add('active');
                 document.title = 'Rumah Perkalian - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'none';
                 break;
             case 'coin-mult':
                 coinScreen.classList.add('active');
                 document.title = 'Rumah Perkalian - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
             case 'placement-mult':
                 placementScreen.classList.add('active');
                 document.title = 'Rumah Perkalian - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
             case 'game-mult':
                 gameScreen.classList.add('active');
                 document.title = 'Rumah Perkalian - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
         }
     }
@@ -301,6 +328,12 @@ const UIMult = (() => {
         stopTurnTimer();
         const p1Name = player1Input.value.trim() || 'Pemain 1';
         const p2Name = selectedMode === 'ai' ? 'AI' : (player2Input.value.trim() || 'Pemain 2');
+
+        // Save names for next session
+        try {
+            localStorage.setItem('dolanan_p1_name_mult', player1Input.value.trim());
+            localStorage.setItem('dolanan_p2_name_mult', player2Input.value.trim());
+        } catch (e) { /* ignore */ }
 
         GameMult.init(selectedMode, p1Name, p2Name, selectedTimeLimit);
 
@@ -330,7 +363,10 @@ const UIMult = (() => {
             coinEl.classList.add('show-tail');
         }
 
+        SFX.coinFlip();
+
         setTimeout(() => {
+            SFX.coinResult();
             const players = GameMult.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
             const p1Display = escapeHTML(players[0].name);
@@ -701,6 +737,8 @@ const UIMult = (() => {
         const result = GameMult.movePion(row, col);
         if (!result) return;
 
+        SFX.click();
+
         if (result.availableCells.length === 0) {
             updateGameUI();
             highlightAvailableCells([]);
@@ -729,6 +767,7 @@ const UIMult = (() => {
         if (!result) return;
 
         clearHighlights();
+        SFX.place();
 
         if (result.win) {
             updateBoardCells();
@@ -779,6 +818,7 @@ const UIMult = (() => {
 
     function showWinOverlay(winnerIdx) {
         stopTurnTimer();
+        SFX.win();
         const players = GameMult.getPlayers();
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
@@ -787,6 +827,7 @@ const UIMult = (() => {
 
     function showAutoLoseOverlay(loserIdx, product) {
         stopTurnTimer();
+        SFX.error();
         const players = GameMult.getPlayers();
         const winner = 1 - loserIdx;
         GameMult.setWinner(winner);
@@ -802,6 +843,7 @@ const UIMult = (() => {
 
     function showDrawOverlay() {
         stopTurnTimer();
+        SFX.draw();
         GameMult.setDraw();
         drawTitle.textContent = '🤝 Seri!';
         drawMessage.textContent =

@@ -1,6 +1,7 @@
 /* ============================================
    DOLANAN MATEMATIKA - AI LOGIC (PERKALIAN)
    ============================================ */
+"use strict";
 
 const AIMult = (() => {
 

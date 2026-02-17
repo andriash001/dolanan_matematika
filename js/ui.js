@@ -1,6 +1,7 @@
 /* ============================================
    DOLANAN MATEMATIKA - UI / DOM CONTROLLER
    ============================================ */
+"use strict";
 
 const UI = (() => {
     // ---- DOM References ----
@@ -105,6 +106,11 @@ const UI = (() => {
             timerValueEl.textContent = turnTimeRemaining;
             if (turnTimeRemaining <= 5) {
                 turnTimerEl.classList.add('timer-warning');
+                if (turnTimeRemaining <= 3) {
+                    SFX.timerUrgent();
+                } else {
+                    SFX.timerTick();
+                }
             }
             if (turnTimeRemaining <= 0) {
                 onTurnTimeout();
@@ -149,6 +155,46 @@ const UI = (() => {
     // INIT / EVENT LISTENERS
     // ============================================
     function init() {
+        // ---- Shared UI: How to Play, Sound Toggle, Floating Help ----
+        const htpOverlay = $('#how-to-play-overlay');
+        const htpCloseBtn = $('#htp-close-btn');
+        const htpBtn = $('#how-to-play-btn');
+        const floatingHelpBtn = $('#floating-help-btn');
+        const soundToggleBtn = $('#sound-toggle-btn');
+
+        // Update sound button icon on load
+        if (soundToggleBtn) {
+            soundToggleBtn.textContent = SFX.isMuted() ? '🔇' : '🔊';
+            soundToggleBtn.addEventListener('click', () => {
+                SFX.ensureContext();
+                const nowMuted = SFX.toggleMute();
+                soundToggleBtn.textContent = nowMuted ? '🔇' : '🔊';
+            });
+        }
+
+        if (htpBtn) {
+            htpBtn.addEventListener('click', () => {
+                SFX.ensureContext();
+                htpOverlay.style.display = 'flex';
+            });
+        }
+        if (htpCloseBtn) {
+            htpCloseBtn.addEventListener('click', () => {
+                htpOverlay.style.display = 'none';
+            });
+        }
+        // Close HTP overlay by clicking backdrop
+        if (htpOverlay) {
+            htpOverlay.addEventListener('click', (e) => {
+                if (e.target === htpOverlay) htpOverlay.style.display = 'none';
+            });
+        }
+        if (floatingHelpBtn) {
+            floatingHelpBtn.addEventListener('click', () => {
+                htpOverlay.style.display = 'flex';
+            });
+        }
+
         // Home screen tiles
         tilePenjumlahan.addEventListener('click', () => {
             isAddActive = true;
@@ -244,6 +290,21 @@ const UI = (() => {
             showScreen('menu');
         });
 
+        // Restore saved player names
+        try {
+            const saved1 = localStorage.getItem('dolanan_p1_name');
+            const saved2 = localStorage.getItem('dolanan_p2_name');
+            if (saved1) player1Input.value = saved1;
+            if (saved2) player2Input.value = saved2;
+        } catch (e) { /* ignore */ }
+
+        // Warn before leaving mid-game
+        window.addEventListener('beforeunload', (e) => {
+            if (isAddActive && Game.getPhase() !== 'menu' && Game.getWinner() === null) {
+                e.preventDefault();
+            }
+        });
+
         // Event delegation — set up once, works for all future cells
         gameBoard.addEventListener('click', (e) => {
             const cell = e.target.closest('.board-cell');
@@ -271,26 +332,32 @@ const UI = (() => {
     // ============================================
     function showScreen(name) {
         $$('.screen').forEach(s => s.classList.remove('active'));
+        const floatingHelp = document.getElementById('floating-help-btn');
         switch(name) {
             case 'home':
                 homeScreen.classList.add('active');
                 document.title = 'Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'none';
                 break;
             case 'menu':
                 menuScreen.classList.add('active');
                 document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'none';
                 break;
             case 'coin':
                 coinScreen.classList.add('active');
                 document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
             case 'placement':
                 placementScreen.classList.add('active');
                 document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
             case 'game':
                 gameScreen.classList.add('active');
                 document.title = 'Rumah Penjumlahan - Dolanan Matematika';
+                if (floatingHelp) floatingHelp.style.display = 'flex';
                 break;
         }
     }
@@ -303,6 +370,12 @@ const UI = (() => {
         stopTurnTimer();
         const p1Name = player1Input.value.trim() || 'Pemain 1';
         const p2Name = selectedMode === 'ai' ? 'AI' : (player2Input.value.trim() || 'Pemain 2');
+
+        // Save names for next session
+        try {
+            localStorage.setItem('dolanan_p1_name', player1Input.value.trim());
+            localStorage.setItem('dolanan_p2_name', player2Input.value.trim());
+        } catch (e) { /* ignore */ }
 
         Game.init(selectedMode, p1Name, p2Name, selectedTimeLimit);
 
@@ -333,7 +406,10 @@ const UI = (() => {
             coinEl.classList.add('show-tail');
         }
 
+        SFX.coinFlip();
+
         setTimeout(() => {
+            SFX.coinResult();
             const players = Game.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
             const p1Display = escapeHTML(players[0].name);
@@ -625,6 +701,7 @@ const UI = (() => {
                 const idx = r * BOARD_SIZE + c;
                 const cell = cells[idx];
                 cell.classList.remove('pion-here-1', 'pion-here-2', 'clickable', 'disabled');
+                cell.removeAttribute('title');
 
                 if (players[r].pionPos === c) {
                     cell.classList.add(r === 0 ? 'pion-here-1' : 'pion-here-2');
@@ -653,6 +730,7 @@ const UI = (() => {
 
                         if (isDisabled) {
                             cell.classList.add('disabled');
+                            cell.title = 'Kolom ini tidak bisa dipilih karena jumlahnya lebih dari 18';
                         } else {
                             cell.classList.add('clickable');
                         }
@@ -719,6 +797,8 @@ const UI = (() => {
         const result = Game.movePion(row, col);
         if (!result) return;
 
+        SFX.click();
+
         if (result.availableCells.length === 0) {
             // No available cells — check if player had a safe move
             updateGameUI();
@@ -748,6 +828,7 @@ const UI = (() => {
         if (!result) return;
 
         clearHighlights();
+        SFX.place();
 
         if (result.win) {
             updateBoardCells();
@@ -799,6 +880,7 @@ const UI = (() => {
 
     function showWinOverlay(winnerIdx) {
         stopTurnTimer();
+        SFX.win();
         const players = Game.getPlayers();
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
@@ -808,6 +890,7 @@ const UI = (() => {
     // Show auto-lose overlay (opponent wins because player chose a bad number)
     function showAutoLoseOverlay(loserIdx, sum) {
         stopTurnTimer();
+        SFX.error();
         const players = Game.getPlayers();
         const winner = 1 - loserIdx;
         Game.setWinner(winner);
@@ -824,6 +907,7 @@ const UI = (() => {
     // Show draw overlay (no safe moves exist for any position)
     function showDrawOverlay() {
         stopTurnTimer();
+        SFX.draw();
         Game.setDraw();
         drawTitle.textContent = '🤝 Seri!';
         drawMessage.textContent =

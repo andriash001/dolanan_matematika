@@ -1,6 +1,7 @@
 /* ============================================
    DOLANAN MATEMATIKA - GAME LOGIC
    ============================================ */
+"use strict";
 
 // ---- Global Constants ----
 const BOARD_SIZE = 10;
