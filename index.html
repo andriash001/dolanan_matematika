@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolanan Matematika</title>
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+    <!-- ==================== MENU SCREEN ==================== -->
+    <div id="menu-screen" class="screen active">
+        <div class="menu-container">
+            <h1 class="game-title">🎲 Dolanan Matematika</h1>
+            <p class="game-subtitle">Permainan Strategi Penjumlahan</p>
+
+            <div class="menu-form">
+                <div class="input-group">
+                    <label for="player1-name">Nama Pemain 1 (Biru)</label>
+                    <input type="text" id="player1-name" placeholder="Pemain 1" maxlength="15">
+                </div>
+
+                <div class="mode-selection">
+                    <h3>Pilih Mode</h3>
+                    <div class="mode-buttons">
+                        <button class="mode-btn selected" data-mode="pvp">
+                            <span class="mode-icon">👥</span>
+                            <span class="mode-label">PvP Lokal</span>
+                        </button>
+                        <button class="mode-btn" data-mode="ai">
+                            <span class="mode-icon">🤖</span>
+                            <span class="mode-label">vs AI</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group" id="player2-input">
+                    <label for="player2-name">Nama Pemain 2 (Merah)</label>
+                    <input type="text" id="player2-name" placeholder="Pemain 2" maxlength="15">
+                </div>
+
+                <button id="start-btn" class="primary-btn">Mulai Permainan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== COIN TOSS SCREEN ==================== -->
+    <div id="coin-screen" class="screen">
+        <div class="coin-container">
+            <h2>Lempar Koin</h2>
+            <p class="coin-instruction" id="coin-instruction">Pemain 1, pilih sisi koin:</p>
+
+            <div class="coin-wrapper">
+                <div class="coin" id="coin">
+                    <div class="coin-face coin-head">H</div>
+                    <div class="coin-face coin-tail">T</div>
+                </div>
+            </div>
+
+            <div class="coin-choices" id="coin-choices">
+                <button class="coin-btn" data-choice="head">
+                    <span>🪙</span> Head
+                </button>
+                <button class="coin-btn" data-choice="tail">
+                    <span>🪙</span> Tail
+                </button>
+            </div>
+
+            <div class="coin-result" id="coin-result" style="display:none;">
+                <p id="coin-result-text"></p>
+                <button id="coin-continue-btn" class="primary-btn">Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== INITIAL PLACEMENT SCREEN ==================== -->
+    <div id="placement-screen" class="screen">
+        <div class="placement-container">
+            <h2 id="placement-title">Penempatan Awal</h2>
+            <p id="placement-instruction"></p>
+
+            <div class="placement-board-wrapper">
+                <div class="addition-board-section">
+                    <h3>Board Penjumlahan</h3>
+                    <div class="addition-board" id="placement-addition-board"></div>
+                </div>
+            </div>
+
+            <button id="placement-confirm-btn" class="primary-btn" style="display:none;">Konfirmasi Penempatan</button>
+        </div>
+    </div>
+
+    <!-- ==================== GAME SCREEN ==================== -->
+    <div id="game-screen" class="screen">
+        <div class="game-layout">
+            <!-- Player Info Bar -->
+            <div class="player-bar">
+                <div class="player-info player1-info" id="player1-info">
+                    <div class="player-pion pion-blue"></div>
+                    <span class="player-name-display" id="p1-name-display">Pemain 1</span>
+                    <span class="player-score" id="p1-score">0 pion</span>
+                </div>
+                <div class="turn-indicator" id="turn-indicator">Giliran: Pemain 1</div>
+                <div class="player-info player2-info" id="player2-info">
+                    <div class="player-pion pion-red"></div>
+                    <span class="player-name-display" id="p2-name-display">Pemain 2</span>
+                    <span class="player-score" id="p2-score">0 pion</span>
+                </div>
+            </div>
+
+            <!-- Sum Display -->
+            <div class="sum-display" id="sum-display">
+                Jumlah: <span id="sum-value">—</span>
+            </div>
+
+            <!-- Game Board (10x10) -->
+            <div class="game-board-wrapper">
+                <div class="game-board" id="game-board"></div>
+            </div>
+
+            <!-- Addition Board (2x10) -->
+            <div class="addition-board-section game-addition">
+                <h3>Board Penjumlahan</h3>
+                <div class="addition-board" id="game-addition-board"></div>
+            </div>
+
+            <!-- Phase Instruction -->
+            <div class="phase-instruction" id="phase-instruction">
+                Gerakkan pion Anda di Board Penjumlahan
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== WIN OVERLAY ==================== -->
+    <div id="win-overlay" class="overlay" style="display:none;">
+        <div class="win-content">
+            <h2 id="win-title">🎉 Selamat!</h2>
+            <p id="win-message"></p>
+            <div class="win-buttons">
+                <button id="play-again-btn" class="primary-btn">Main Lagi</button>
+                <button id="back-menu-btn" class="secondary-btn">Kembali ke Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DRAW / NO MOVES OVERLAY ==================== -->
+    <div id="draw-overlay" class="overlay" style="display:none;">
+        <div class="win-content">
+            <h2>😐 Tidak Ada Langkah</h2>
+            <p id="draw-message">Tidak ada cell tersedia untuk hasil penjumlahan ini. Giliran dilewati.</p>
+            <button id="draw-continue-btn" class="primary-btn">Lanjutkan</button>
+        </div>
+    </div>
+
+    <script src="js/game.js?v=2"></script>
+    <script src="js/ai.js?v=2"></script>
+    <script src="js/ui.js?v=2"></script>
+</body>
+</html>
