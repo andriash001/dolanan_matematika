@@ -24,7 +24,7 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
   - [Rumah Penjumlahan (Addition)](#rumah-penjumlahan-addition)
   - [Rumah Perkalian (Multiplication)](#rumah-perkalian-multiplication)
   - [First Turn Special Rule](#first-turn-special-rule)
-  - [Turn Skipping & Auto Game Over](#turn-skipping--auto-game-over)
+  - [Auto Game Over](#auto-game-over)
   - [Turn Timer](#turn-timer)
 - [AI Opponent](#ai-opponent)
 - [Tech Stack](#tech-stack)
@@ -160,14 +160,15 @@ Product = (Player 1's pion value) × (Player 2's pion value)
 
 On the **very first turn** (belonging to the coin toss winner), the player may move **either** pion (Blue or Red) — not just their own. This adds an extra layer of strategy to the opening move. After the first turn, each player can only move their own pion. This rule applies to both games.
 
-### Turn Skipping & Auto Game Over
+### Auto Game Over
 
-If the current result (sum or product) has **no available (unclaimed) cells** on the Game Board:
+A player **automatically loses** in the following situations:
 
-- If the player **had an alternative pion position** that would yield available cells → **Auto-lose** (the opponent wins).
-- If **no valid pion position** exists with available cells → **Draw**.
+1. **Time runs out** — If the turn timer expires, the current player loses immediately. No partial effort is counted.
+2. **Dead-end move** — If the current result (sum or product) has no available (unclaimed) cells on the Game Board, and the player had an alternative pion position that would yield available cells → **Auto-lose** (the opponent wins).
+3. **Draw** — If no valid pion position exists with available cells for the current player → the game ends in a **Draw**.
 
-This prevents players from deliberately choosing dead-end positions.
+This prevents stalling tactics and deliberately choosing dead-end positions.
 
 ### Turn Timer
 
@@ -180,7 +181,7 @@ Each turn can be time-limited. Players select a timer duration before the game s
 | **60 detik** | 60 seconds per turn |
 | **∞ Tanpa Batas** | No time limit |
 
-When the timer runs out, the turn is automatically skipped to the next player.
+When the timer runs out, the current player **automatically loses** — no partial effort is counted. The opponent wins immediately.
 
 ---
 

@@ -136,14 +136,9 @@ const UI = (() => {
             clearAllAITimers();
             clearHighlights();
 
-            Game.skipTurn();
-            updateGameUI();
-            startTurnTimer();
-
-            // If next turn is AI, schedule it
-            if (Game.isAITurn()) {
-                scheduleAI(doAITurn, 800);
-            }
+            // Player who ran out of time automatically loses
+            const loserIdx = Game.getCurrentPlayer();
+            showTimeoutLoseOverlay(loserIdx);
         }
     }
 
@@ -323,6 +318,8 @@ const UI = (() => {
             const cell = e.target.closest('.add-cell');
             if (!cell) return;
             if (!cell.classList.contains('clickable')) return;
+            // Block human clicks when AI won the coin toss and is placing
+            if (Game.isAIMode() && Game.getCoinWinner() === 1) return;
             handlePlacementClick(parseInt(cell.dataset.row), parseInt(cell.dataset.col));
         });
     }
@@ -484,13 +481,16 @@ const UI = (() => {
                 }
 
                 if (state.phase === 'placement') {
-                    const unplaced = Game.getUnplacedRow();
-                    const canClick = (unplaced === 'both') || (unplaced === r);
-                    if (canClick && players[r].pionPos === null) {
-                        if (disabledCols.includes(c)) {
-                            cell.classList.add('disabled');
-                        } else {
-                            cell.classList.add('clickable');
+                    const isAIPlacing = Game.isAIMode() && Game.getCoinWinner() === 1;
+                    if (!isAIPlacing) {
+                        const unplaced = Game.getUnplacedRow();
+                        const canClick = (unplaced === 'both') || (unplaced === r);
+                        if (canClick && players[r].pionPos === null) {
+                            if (disabledCols.includes(c)) {
+                                cell.classList.add('disabled');
+                            } else {
+                                cell.classList.add('clickable');
+                            }
                         }
                     }
                 }
@@ -885,6 +885,22 @@ const UI = (() => {
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
         winOverlay.style.display = 'flex';
+    }
+
+    // Show timeout lose overlay (player ran out of time)
+    function showTimeoutLoseOverlay(loserIdx) {
+        stopTurnTimer();
+        SFX.error();
+        const players = Game.getPlayers();
+        const winner = 1 - loserIdx;
+        Game.setWinner(winner);
+        drawTitle.textContent = '⏰ Waktu Habis!';
+        drawMessage.textContent =
+            `${players[loserIdx].name} kehabisan waktu. ` +
+            `${players[winner].name} menang otomatis!`;
+        drawContinueBtn.style.display = 'none';
+        drawGameoverButtons.style.display = 'flex';
+        drawOverlay.style.display = 'flex';
     }
 
     // Show auto-lose overlay (opponent wins because player chose a bad number)
