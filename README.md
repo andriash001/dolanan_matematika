@@ -49,7 +49,9 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **Player Name Persistence**: Names saved in `localStorage` across sessions
 - **Leave-Game Protection**: Browser warning when navigating away mid-game
 - **Dark Theme UI**: Modern, polished interface with smooth animations
-- **SEO & Social Sharing**: Meta description, Open Graph tags, theme-color, Apple web app meta, and SVG favicon
+- **SEO Optimized**: Target keywords ("Rumah Penjumlahan", "Rumah Perkalian") in title, meta description, and heading hierarchy; canonical URL, JSON-LD structured data (`WebApplication` schema), `<noscript>` fallback content for crawlers, `robots.txt`, and `sitemap.xml`
+- **Social Sharing**: Full Open Graph (with 1200×630 PNG image), Twitter Card meta tags, locale, and site name — previews render correctly on WhatsApp, Facebook, Twitter/X, LinkedIn, etc.
+- **PWA-Ready**: Web app manifest with icons (192px, 512px, Apple Touch Icon), theme color, and standalone display mode
 - **No Dependencies**: Pure HTML/CSS/JS — no frameworks or build tools required
 
 ---
@@ -221,6 +223,14 @@ For **initial placement**, the AI prefers central columns for maximum flexibilit
 dolanan_matematika/
 ├── index.html             # Single-page HTML (all screens for both games)
 ├── favicon.svg            # SVG favicon (game board icon)
+├── og-image.svg           # OG share image source (SVG)
+├── og-image.png           # Social sharing preview image (1200×630)
+├── apple-touch-icon.png   # Apple touch icon (180×180)
+├── icon-192.png           # PWA icon (192×192)
+├── icon-512.png           # PWA icon (512×512)
+├── manifest.json          # PWA web app manifest
+├── robots.txt             # Search engine crawler directives
+├── sitemap.xml            # XML sitemap for search engines
 ├── css/
 │   └── style.css          # All styles, animations, responsive design
 ├── js/
