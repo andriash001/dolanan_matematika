@@ -368,10 +368,10 @@ const UIMult = (() => {
             const players = GameMult.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
             const p1Display = escapeHTML(players[0].name);
-            const resultLabel = result === 'head' ? 'Head' : 'Tail';
+            const resultLabel = result === 'head' ? 'Kepala' : 'Ekor';
 
             coinResultText.innerHTML = `Hasil: <strong>${resultLabel}</strong><br>` +
-                `${p1Display} memilih: <strong>${choice === 'head' ? 'Head' : 'Tail'}</strong><br><br>` +
+                `${p1Display} memilih: <strong>${choice === 'head' ? 'Kepala' : 'Ekor'}</strong><br><br>` +
                 `🎉 <strong>${winnerName}</strong> menang coin toss!<br>` +
                 `${winnerName} akan menempatkan kedua pion terlebih dahulu.`;
 
@@ -849,10 +849,12 @@ const UIMult = (() => {
         const winner = 1 - loserIdx;
         GameMult.setWinner(winner);
         drawTitle.textContent = '🚫 Game Over!';
-        drawMessage.textContent =
-            `${players[loserIdx].name} memilih angka yang menghasilkan hasil kali ${product}, ` +
-            `yang tidak tersedia di Board Permainan. ` +
-            `${players[winner].name} menang otomatis!`;
+        drawMessage.textContent = product !== null
+            ? `${players[loserIdx].name} memilih angka yang menghasilkan hasil kali ${product}, ` +
+              `yang tidak tersedia di Board Permainan. ` +
+              `${players[winner].name} menang otomatis!`
+            : `${players[loserIdx].name} tidak memiliki langkah valid. ` +
+              `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
         drawOverlay.style.display = 'flex';
@@ -884,7 +886,16 @@ const UIMult = (() => {
         const moveResult = GameMult.movePion(1, move.pionCol);
         updateGameUI();
 
-        if (!moveResult) return;
+        if (!moveResult) {
+            // movePion failed (e.g. same position) — still need to end the game
+            const autoResult = GameMult.checkAutoGameOver(1);
+            if (autoResult.autoLose) {
+                showAutoLoseOverlay(1, null);
+            } else {
+                showDrawOverlay();
+            }
+            return;
+        }
 
         if (move.noMoves || moveResult.availableCells.length === 0) {
             highlightAvailableCells([]);

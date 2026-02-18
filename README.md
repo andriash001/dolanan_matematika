@@ -81,7 +81,7 @@ Launch the app to see the **game selection hub**. Pick a game tile to begin — 
 
 ### Coin Toss
 
-- Player 1 picks a side: **Head** or **Tail**.
+- Player 1 picks a side: **Kepala** (Head) or **Ekor** (Tail).
 - An animated coin flip determines the winner.
 - The coin toss winner gets to **place both pions** on the Addition Board and takes the **first turn**.
 
@@ -232,6 +232,7 @@ dolanan_matematika/
 │   ├── ai-perkalian.js    # Perkalian: AI opponent (AIMult module)
 │   └── ui-perkalian.js    # Perkalian: DOM & event handling (UIMult module)
 ├── README.md
+├── ROADMAP.md
 └── LICENSE
 ```
 

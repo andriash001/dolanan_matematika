@@ -51,15 +51,7 @@ body {
     display: flex;
 }
 
-#game-screen.active {
-    display: block;
-    padding: 0;
-    min-height: auto;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-}
-
+#game-screen.active,
 #game-screen-mult.active {
     display: block;
     padding: 0;
@@ -215,19 +207,6 @@ body {
     color: var(--text-muted);
 }
 
-.tile-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, var(--gold), #f59e0b);
-    color: #0f172a;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
 
 .back-home-btn {
     width: 100%;

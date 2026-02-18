@@ -410,10 +410,10 @@ const UI = (() => {
             const players = Game.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
             const p1Display = escapeHTML(players[0].name);
-            const resultLabel = result === 'head' ? 'Head' : 'Tail';
+            const resultLabel = result === 'head' ? 'Kepala' : 'Ekor';
 
             coinResultText.innerHTML = `Hasil: <strong>${resultLabel}</strong><br>` +
-                `${p1Display} memilih: <strong>${choice === 'head' ? 'Head' : 'Tail'}</strong><br><br>` +
+                `${p1Display} memilih: <strong>${choice === 'head' ? 'Kepala' : 'Ekor'}</strong><br><br>` +
                 `🎉 <strong>${winnerName}</strong> menang coin toss!<br>` +
                 `${winnerName} akan menempatkan kedua pion terlebih dahulu.`;
 
@@ -861,7 +861,7 @@ const UI = (() => {
     }
 
     function clearHighlights() {
-        $$('.board-cell.highlight').forEach(el => el.classList.remove('highlight'));
+        gameBoard.querySelectorAll('.board-cell.highlight').forEach(el => el.classList.remove('highlight'));
     }
 
     function highlightWinCells(cells) {
@@ -911,10 +911,12 @@ const UI = (() => {
         const winner = 1 - loserIdx;
         Game.setWinner(winner);
         drawTitle.textContent = '🚫 Game Over!';
-        drawMessage.textContent =
-            `${players[loserIdx].name} memilih angka yang menghasilkan jumlah ${sum}, ` +
-            `yang tidak tersedia di Board Permainan. ` +
-            `${players[winner].name} menang otomatis!`;
+        drawMessage.textContent = sum !== null
+            ? `${players[loserIdx].name} memilih angka yang menghasilkan jumlah ${sum}, ` +
+              `yang tidak tersedia di Board Permainan. ` +
+              `${players[winner].name} menang otomatis!`
+            : `${players[loserIdx].name} tidak memiliki langkah valid. ` +
+              `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
         drawOverlay.style.display = 'flex';
@@ -947,7 +949,16 @@ const UI = (() => {
         const moveResult = Game.movePion(1, move.pionCol);
         updateGameUI();
 
-        if (!moveResult) return;
+        if (!moveResult) {
+            // movePion failed (e.g. same position) — still need to end the game
+            const autoResult = Game.checkAutoGameOver(1);
+            if (autoResult.autoLose) {
+                showAutoLoseOverlay(1, null);
+            } else {
+                showDrawOverlay();
+            }
+            return;
+        }
 
         if (move.noMoves || moveResult.availableCells.length === 0) {
             // No moves available — check if AI had a safe move

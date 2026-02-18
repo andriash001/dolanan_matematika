@@ -225,7 +225,9 @@ const Game = (() => {
     }
 
     // ---- Win Check ----
-    // Check if placing at (row, col) creates 4 in a row for player
+    // Check if placing at (row, col) creates 4 in a row for player.
+    // NOTE: This function assumes (row, col) already belongs to `player`.
+    // It is always called from placeOnBoard() which sets ownership before invoking checkWin.
     function checkWin(row, col, player) {
         const directions = [
             [0, 1],   // horizontal

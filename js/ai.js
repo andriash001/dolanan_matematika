@@ -42,8 +42,10 @@ const AI = (() => {
         }
 
         if (bestMoves.length === 0) {
-            // No valid moves, return a random pion position (will be skipped)
-            return { pionCol: Game.randomInt(0, BOARD_SIZE - 1), boardRow: -1, boardCol: -1, noMoves: true };
+            // No valid moves — pick a column different from the AI's current position
+            const currentPos = state.players[aiIdx].pionPos;
+            const fallbackCol = (currentPos + 1) % BOARD_SIZE;
+            return { pionCol: fallbackCol, boardRow: -1, boardCol: -1, noMoves: true };
         }
 
         // Pick randomly among best moves
