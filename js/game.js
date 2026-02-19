@@ -34,7 +34,8 @@ const Game = (() => {
         winner: null,
         winCells: [],
         moveHistory: [],
-        timeLimit: 30          // seconds per turn, 0 = unlimited
+        timeLimit: 30,         // seconds per turn, 0 = unlimited
+        difficulty: 'normal'   // ai difficulty: easy | normal | hard
     };
 
     // ---- Board Generation ----
@@ -58,7 +59,7 @@ const Game = (() => {
     }
 
     // ---- Init ----
-    function init(mode, player1Name, player2Name, timeLimit) {
+    function init(mode, player1Name, player2Name, timeLimit, difficulty) {
         state.mode = mode;
         state.players[0].name = player1Name || 'Pemain 1';
         state.players[1].name = player2Name || (mode === 'ai' ? 'AI' : 'Pemain 2');
@@ -75,6 +76,7 @@ const Game = (() => {
         state.winCells = [];
         state.moveHistory = [];
         state.timeLimit = (timeLimit !== undefined && timeLimit !== null) ? timeLimit : 30;
+        state.difficulty = (difficulty === 'easy' || difficulty === 'hard') ? difficulty : 'normal';
         state.phase = 'coin';
     }
 
@@ -439,6 +441,10 @@ const Game = (() => {
         return state.timeLimit;
     }
 
+    function getDifficulty() {
+        return state.difficulty;
+    }
+
     return {
         init,
         coinToss,
@@ -471,6 +477,7 @@ const Game = (() => {
         isFirstTurn,
         getCoinWinner,
         getTimeLimit,
+        getDifficulty,
         generateBoard,
         randomInt
     };

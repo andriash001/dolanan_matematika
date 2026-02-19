@@ -101,6 +101,35 @@ body {
     flex-wrap: wrap;
 }
 
+.summary-meta {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 0 0 14px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+.summary-row + .summary-row {
+    margin-top: 6px;
+}
+
+.summary-value {
+    color: var(--text);
+    font-weight: 600;
+    text-align: right;
+}
+
 /* --- Series Score Display (football-style) --- */
 .series-score {
     display: flex;
@@ -396,6 +425,28 @@ body {
 .back-home-btn {
     width: 100%;
     margin-top: 8px;
+}
+
+.home-footer {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.home-footer a {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-decoration: none;
+    opacity: 0.5;
+    transition: color 0.15s, opacity 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.home-footer a:hover,
+.home-footer a:focus-visible {
+    color: var(--text);
+    opacity: 1;
 }
 
 /* ============================================
@@ -1378,6 +1429,16 @@ body {
         gap: 6px;
         padding: 8px 10px;
         margin-bottom: 14px;
+    }
+
+    .summary-meta {
+        padding: 8px 10px;
+        margin-bottom: 12px;
+    }
+
+    .summary-row {
+        font-size: 0.78rem;
+        gap: 8px;
     }
 
     .score-name {

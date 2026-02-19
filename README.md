@@ -41,7 +41,10 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **Configurable Turn Timer**: Choose 15s, 30s, 60s, or unlimited time per turn
 - **Coin Toss Mechanic**: Animated coin flip to fairly decide who places first
 - **Strategic Depth**: Shared pion positions mean every move affects your opponent's options
-- **AI Opponent**: Heuristic-based AI that evaluates streaks, blocks threats, and prefers center control
+- **AI Opponent with Levels**: Choose **Easy**, **Normal**, or **Hard** when playing vs AI
+- **Smart Rematch Flow**: "Rematch" keeps the previous mode, timer, and AI difficulty for faster repeat games
+- **Round Summary Card**: End-of-round overlay shows AI level (vs AI), move count, and round duration
+- **Quick Exit from Coin Toss**: "Kembali ke Beranda" is available directly on coin toss screens
 - **Mobile-Friendly**: Responsive layout with `100dvh` viewport fix, touch-optimized targets, and landscape support
 - **Sound Effects**: Web Audio API-generated sounds for cell placement, coin toss, win celebration, timer warnings, and more — with mute toggle
 - **Series Scoreboard**: Football-style scoreboard tracks wins across rounds (e.g., `Pemain 1 [2] – [1] AI`); persists through "Play Again", resets on menu/home navigation
@@ -79,9 +82,15 @@ Launch the app to see the **game selection hub**. Pick a game tile to begin — 
 2. Choose a game mode:
    - **👥 PvP Lokal** — Two human players on the same device.
    - **🤖 vs AI** — Play against the computer.
-3. Select a **turn timer** (15s, 30s, 60s, or unlimited).
-4. If PvP, enter **Player 2's name** (Red pion).
-5. Click **"Mulai Permainan"** (Start Game).
+3. If you choose **vs AI**, select the AI level:
+  - **Easy** — more forgiving and less consistent.
+  - **Normal** — balanced tactical AI.
+  - **Hard** — stronger tactical AI with limited lookahead.
+4. Select a **turn timer** (15s, 30s, 60s, or unlimited).
+5. If PvP, enter **Player 2's name** (Red pion).
+6. Click **"Mulai Permainan"** (Start Game).
+
+After each round, use **"Rematch"** to start again with the same settings (mode, timer, and AI difficulty).
 
 ### Coin Toss
 
@@ -191,22 +200,20 @@ When the timer runs out, the current player **automatically loses** — no parti
 
 ## AI Opponent
 
-The AI (always Player 2 / Red) uses a **heuristic evaluation** strategy:
+The AI (always Player 2 / Red) now supports **three difficulty levels** in both games:
 
-| Priority | Strategy | Score Weight |
-|----------|----------|-------------|
-| 1 | **Winning move** — If placing completes 4 in a row | 100,000 |
-| 2 | **Block opponent win** — Prevent opponent from completing 4 | 50,000 |
-| 3 | **Block opponent 3-streak** — Disrupt opponent building toward 4 | 8,000 |
-| 4 | **Extend own 3-streak** — Build toward a win | 5,000 |
-| 5 | **Extend own 2-streak** | 500 |
-| 6 | **Block opponent 2-streak** | 300 |
-| 7 | **Center preference** — Cells closer to the center offer more connection possibilities | Variable |
-| 8 | **Random factor** — Small randomness to avoid predictability | 0–10 |
+- **Easy**: uses lighter tactical weights and higher randomness so it makes more mistakes.
+- **Normal**: uses strong heuristic evaluation (win/block/streak/center), similar to the previous AI behavior.
+- **Hard**: uses the same tactical heuristic plus a **limited depth-2 lookahead** (candidate filtering + opponent best response check) to avoid obvious traps.
 
-The AI evaluates **every possible pion position** and every available cell for each resulting sum/product, then picks the highest-scoring move.
+Core priorities remain the same across levels:
 
-For **initial placement**, the AI prefers central columns for maximum flexibility, with slight randomness. Both Rumah Penjumlahan and Rumah Perkalian share the same AI strategy, adapted for their respective operations.
+1. Take immediate wins.
+2. Block immediate opponent wins.
+3. Build own streaks and disrupt opponent streaks.
+4. Prefer center control when tactical value is close.
+
+For **initial placement** and the first board placement after coin toss, the same difficulty profile is applied so behavior stays consistent from opening to mid-game.
 
 ---
 

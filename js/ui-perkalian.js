@@ -21,7 +21,9 @@ const UIMult = (() => {
 
     // Menu
     const modeButtons = $$('#menu-screen-mult .mode-btn');
-    const timerButtons = $$('#menu-screen-mult .timer-btn');
+    const timerButtons = $$('#menu-screen-mult .timer-btn[data-time]');
+    const difficultyButtons = $$('#menu-screen-mult .difficulty-btn');
+    const difficultyGroup = $('#difficulty-selection-mult');
     const player1Input = $('#player1-name-mult');
     const player2Input = $('#player2-name-mult');
     const player2Group = $('#player2-input-mult');
@@ -34,6 +36,7 @@ const UIMult = (() => {
     const coinResult = $('#coin-result-mult');
     const coinResultText = $('#coin-result-text-mult');
     const coinContinueBtn = $('#coin-continue-btn-mult');
+    const coinBackHomeBtn = $('#coin-back-home-btn-mult');
 
     // Placement
     const placementTitle = $('#placement-title-mult');
@@ -86,13 +89,24 @@ const UIMult = (() => {
 
     let selectedMode = 'pvp';
     let selectedTimeLimit = 30;
+    let selectedDifficulty = 'normal';
     let aiTimerIds = [];
     let turnTimerId = null;
     let turnTimeRemaining = 0;
+    let coinResultTimerId = null;
     let isMultActive = false; // Track if multiplication game is the active game
 
+    // ---- Round tracking for summary & rematch ----
+    let roundStartTime = null;
+    let roundId = 0;
+    let lastMatchConfig = null;
+
     function scheduleAI(fn, delay) {
-        const id = setTimeout(fn, delay);
+        const scheduledRoundId = roundId;
+        const id = setTimeout(() => {
+            if (scheduledRoundId !== roundId) return;
+            fn();
+        }, delay);
         aiTimerIds.push(id);
         return id;
     }
@@ -209,9 +223,20 @@ const UIMult = (() => {
                 selectedMode = btn.dataset.mode;
                 if (selectedMode === 'ai') {
                     player2Group.style.display = 'none';
+                    difficultyGroup.style.display = 'block';
                 } else {
                     player2Group.style.display = 'block';
+                    difficultyGroup.style.display = 'none';
                 }
+            });
+        });
+
+        // Difficulty buttons
+        difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                difficultyButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedDifficulty = btn.dataset.difficulty;
             });
         });
 
@@ -234,6 +259,17 @@ const UIMult = (() => {
 
         // Coin continue
         coinContinueBtn.addEventListener('click', goToPlacement);
+        coinBackHomeBtn.addEventListener('click', () => {
+            clearAllAITimers();
+            stopTurnTimer();
+            if (coinResultTimerId !== null) {
+                clearTimeout(coinResultTimerId);
+                coinResultTimerId = null;
+            }
+            isMultActive = false;
+            GameMult.resetSeriesScore();
+            showScreen('home');
+        });
 
         // Placement confirm
         placementConfirmBtn.addEventListener('click', confirmPlacement);
@@ -245,7 +281,7 @@ const UIMult = (() => {
             winPatternGrid.innerHTML = '';
             winPatternLabel.style.display = 'none';
             stopTurnTimer();
-            startGame();
+            startRematch();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isMultActive) return;
@@ -281,7 +317,7 @@ const UIMult = (() => {
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
             stopTurnTimer();
-            startGame();
+            startRematch();
         });
         drawBackMenuBtn.addEventListener('click', () => {
             if (!isMultActive) return;
@@ -380,12 +416,43 @@ const UIMult = (() => {
         }
     }
 
+    // ---- Summary helper ----
+    function populateSummaryMeta(resultType, reasonText) {
+        const summaryMeta = resultType === 'win' ? $('#win-summary-meta') : $('#draw-summary-meta');
+        if (!summaryMeta) return;
+        
+        const state = GameMult.getState();
+        const durationSec = roundStartTime ? Math.round((Date.now() - roundStartTime) / 1000) : 0;
+        void reasonText;
+        
+        // Build summary rows
+        const rows = [];
+        if (selectedMode === 'ai') {
+            rows.push(`<div class="summary-row"><span>Level AI</span><span class="summary-value">${selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)}</span></div>`);
+        }
+        rows.push(`<div class="summary-row"><span>Jumlah Langkah</span><span class="summary-value">${state.moveHistory ? state.moveHistory.length : 0}</span></div>`);
+        rows.push(`<div class="summary-row"><span>Durasi</span><span class="summary-value">${durationSec}s</span></div>`);
+        
+        summaryMeta.innerHTML = rows.join('');
+    }
+
     // ============================================
     // START GAME
     // ============================================
     function startGame() {
         clearAllAITimers();
         stopTurnTimer();
+        
+        // ---- Round tracking & config snapshot ----
+        roundId++;
+        roundStartTime = Date.now();
+        lastMatchConfig = {
+            mode: selectedMode,
+            difficulty: selectedDifficulty,
+            timeLimit: selectedTimeLimit,
+            isMultGame: true
+        };
+        
         const p1Name = player1Input.value.trim() || 'Pemain 1';
         const p2Name = selectedMode === 'ai' ? 'AI' : (player2Input.value.trim() || 'Pemain 2');
 
@@ -395,15 +462,29 @@ const UIMult = (() => {
             localStorage.setItem('dolanan_p2_name_mult', player2Input.value.trim());
         } catch (e) { /* ignore */ }
 
-        GameMult.init(selectedMode, p1Name, p2Name, selectedTimeLimit);
+        GameMult.init(selectedMode, p1Name, p2Name, selectedTimeLimit, selectedDifficulty);
 
         // Reset coin UI
+        if (coinResultTimerId !== null) {
+            clearTimeout(coinResultTimerId);
+            coinResultTimerId = null;
+        }
         coinEl.className = 'coin';
         coinChoices.style.display = 'flex';
         coinResult.style.display = 'none';
         coinInstruction.textContent = `${p1Name}, pilih sisi koin:`;
 
         showScreen('coin-mult');
+    }
+
+    function startRematch() {
+        // Use last match settings if available, otherwise defaults
+        if (lastMatchConfig) {
+            selectedMode = lastMatchConfig.mode;
+            selectedDifficulty = lastMatchConfig.difficulty;
+            selectedTimeLimit = lastMatchConfig.timeLimit;
+        }
+        startGame();
     }
 
     // ============================================
@@ -425,7 +506,12 @@ const UIMult = (() => {
 
         SFX.coinFlip();
 
-        setTimeout(() => {
+        if (coinResultTimerId !== null) {
+            clearTimeout(coinResultTimerId);
+        }
+        const scheduledRoundId = roundId;
+        coinResultTimerId = setTimeout(() => {
+            if (scheduledRoundId !== roundId) return;
             SFX.coinResult();
             const players = GameMult.getPlayers();
             const winnerName = escapeHTML(players[winner].name);
@@ -438,6 +524,7 @@ const UIMult = (() => {
                 `${winnerName} akan menempatkan kedua pion terlebih dahulu.`;
 
             coinResult.style.display = 'block';
+            coinResultTimerId = null;
         }, 2200);
     }
 
@@ -580,7 +667,14 @@ const UIMult = (() => {
 
     function doAIPlacement() {
         // AI places first pion
-        const col1 = AIMult.chooseInitialPlacement();
+        let col1;
+        try {
+            col1 = (AIMult && typeof AIMult.chooseInitialPlacement === 'function')
+                ? AIMult.chooseInitialPlacement()
+                : fallbackChooseInitialPlacement();
+        } catch (e) {
+            col1 = fallbackChooseInitialPlacement();
+        }
         const unplaced1 = GameMult.getUnplacedRow();
         let firstRow = 1; // AI prefers its own row first
         if (unplaced1 !== 'both' && unplaced1 !== 1) firstRow = 0;
@@ -588,7 +682,14 @@ const UIMult = (() => {
         handlePlacementClick(firstRow, col1);
 
         scheduleAI(() => {
-            const col2 = AIMult.chooseInitialPlacement(col1);
+            let col2;
+            try {
+                col2 = (AIMult && typeof AIMult.chooseInitialPlacement === 'function')
+                    ? AIMult.chooseInitialPlacement(col1)
+                    : fallbackChooseInitialPlacement(col1);
+            } catch (e) {
+                col2 = fallbackChooseInitialPlacement(col1);
+            }
             const unplaced2 = GameMult.getUnplacedRow();
             if (unplaced2 !== null && unplaced2 !== 'both') {
                 handlePlacementClick(unplaced2, col2);
@@ -608,19 +709,23 @@ const UIMult = (() => {
             return;
         }
 
-        const board = GameMult.getBoard();
-        let bestScore = -Infinity;
-        let bestCell = availableCells[0];
-        for (const cell of availableCells) {
-            const centerDist = Math.abs(cell.row - 4.5) + Math.abs(cell.col - 4.5);
-            const score = (10 - centerDist) + Math.random() * 5;
-            if (score > bestScore) {
-                bestScore = score;
-                bestCell = cell;
+        let bestCell;
+        try {
+            if (AIMult && typeof AIMult.chooseFirstBoardPlacement === 'function') {
+                bestCell = AIMult.chooseFirstBoardPlacement(availableCells);
             }
+        } catch (e) {
+            bestCell = null;
+        }
+        if (!isCellInList(bestCell, availableCells)) {
+            bestCell = fallbackChooseFirstBoardPlacement(availableCells);
         }
 
-        const placeResult = GameMult.placeOnBoard(bestCell.row, bestCell.col);
+        let placeResult = GameMult.placeOnBoard(bestCell.row, bestCell.col);
+        if (!placeResult) {
+            const fallbackCell = fallbackChooseFirstBoardPlacement(availableCells);
+            placeResult = GameMult.placeOnBoard(fallbackCell.row, fallbackCell.col);
+        }
         clearHighlights();
 
         if (placeResult && placeResult.win) {
@@ -887,6 +992,7 @@ const UIMult = (() => {
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
         renderWinPatternGrid(GameMult.getBoard(), GameMult.getWinCells(), MULT_BOARD_SIZE);
         updateSeriesScoreDisplay(winSeriesScore, players);
+        populateSummaryMeta('win', 'win');
         currentShareText = buildShareText(players);
         winOverlay.style.display = 'flex';
     }
@@ -905,6 +1011,7 @@ const UIMult = (() => {
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
         updateSeriesScoreDisplay(drawSeriesScore, players);
+        populateSummaryMeta('draw', 'timeout');
         drawShareSection.style.display = '';
         currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
@@ -926,6 +1033,7 @@ const UIMult = (() => {
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
         updateSeriesScoreDisplay(drawSeriesScore, players);
+        populateSummaryMeta('draw', 'auto-lose');
         drawShareSection.style.display = '';
         currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
@@ -943,6 +1051,7 @@ const UIMult = (() => {
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
         updateSeriesScoreDisplay(drawSeriesScore, players);
+        populateSummaryMeta('draw', 'draw');
         drawShareSection.style.display = '';
         currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
@@ -1055,20 +1164,19 @@ const UIMult = (() => {
 
     function shareToX() {
         SFX.click();
-        const url = 'https://dolananmatematika.com';
         const text = encodeURIComponent(currentShareText);
-        window.open(`https://x.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank', 'noopener');
+        window.open(`https://x.com/intent/tweet?text=${text}`, '_blank', 'noopener');
     }
 
     function shareToThreads() {
         SFX.click();
-        const text = encodeURIComponent(currentShareText + '\nhttps://dolananmatematika.com');
+        const text = encodeURIComponent(currentShareText);
         window.open(`https://www.threads.net/intent/post?text=${text}`, '_blank', 'noopener');
     }
 
     function shareToIG() {
         SFX.click();
-        const text = currentShareText + '\nhttps://dolananmatematika.com';
+        const text = currentShareText;
         navigator.clipboard.writeText(text).then(() => {
             clipboardToast.classList.add('show');
             setTimeout(() => clipboardToast.classList.remove('show'), 2500);
@@ -1091,7 +1199,15 @@ const UIMult = (() => {
         if (!GameMult.isAITurn()) return;
         if (GameMult.getWinner() !== null) return;
 
-        const move = AIMult.chooseMove();
+        let move;
+        try {
+            move = (AIMult && typeof AIMult.chooseMove === 'function') ? AIMult.chooseMove() : fallbackChooseMove();
+        } catch (e) {
+            move = fallbackChooseMove();
+        }
+        if (!move || typeof move.pionCol !== 'number') {
+            move = fallbackChooseMove();
+        }
 
         // First: move AI pion on multiplication board
         const moveResult = GameMult.movePion(1, move.pionCol);
@@ -1123,11 +1239,17 @@ const UIMult = (() => {
 
         // Then: place on board after a short delay
         scheduleAI(() => {
-            const placeResult = GameMult.placeOnBoard(move.boardRow, move.boardCol);
+            let placeResult = GameMult.placeOnBoard(move.boardRow, move.boardCol);
+            if (!placeResult && moveResult.availableCells && moveResult.availableCells.length > 0) {
+                const fallbackCell = fallbackChooseFirstBoardPlacement(moveResult.availableCells);
+                placeResult = GameMult.placeOnBoard(fallbackCell.row, fallbackCell.col);
+            }
             clearHighlights();
 
             if (!placeResult) {
+                GameMult.skipTurn();
                 updateGameUI();
+                startTurnTimer();
                 return;
             }
 
@@ -1150,6 +1272,66 @@ const UIMult = (() => {
             updateGameUI();
             startTurnTimer();
         }, 1000);
+    }
+
+    function isCellInList(cell, list) {
+        if (!cell || typeof cell.row !== 'number' || typeof cell.col !== 'number') return false;
+        return list.some(c => c.row === cell.row && c.col === cell.col);
+    }
+
+    function fallbackChooseFirstBoardPlacement(availableCells) {
+        let bestScore = -Infinity;
+        let bestCell = availableCells[0];
+        for (const cell of availableCells) {
+            const centerDist = Math.abs(cell.row - 4.5) + Math.abs(cell.col - 4.5);
+            const score = (10 - centerDist) + Math.random() * 5;
+            if (score > bestScore) {
+                bestScore = score;
+                bestCell = cell;
+            }
+        }
+        return bestCell;
+    }
+
+    function fallbackChooseInitialPlacement(firstPionCol) {
+        const preferred = [4, 3, 5, 2, 6, 1, 7, 0, 8];
+        const disabledCols = (firstPionCol !== undefined && firstPionCol !== null)
+            ? GameMult.getDisabledColumnsForPlacement(firstPionCol)
+            : [];
+        const allowed = preferred.filter(c => !disabledCols.includes(c));
+        return allowed.length > 0 ? allowed[0] : 0;
+    }
+
+    function fallbackChooseMove() {
+        const state = GameMult.getState();
+        const aiIdx = 1;
+        const humanIdx = 0;
+        const aiCurrentPos = state.players[aiIdx].pionPos;
+        const humanPos = state.players[humanIdx].pionPos;
+        const candidates = [];
+
+        for (let pos = 0; pos < MULT_COLS; pos++) {
+            if (pos === aiCurrentPos) continue;
+            const product = (humanPos + 1) * (pos + 1);
+            const cells = GameMult.getAvailableCellsForProduct(product);
+            for (const cell of cells) {
+                const centerDist = Math.abs(cell.row - 4.5) + Math.abs(cell.col - 4.5);
+                const score = (10 - centerDist) + Math.random() * 5;
+                candidates.push({ pionCol: pos, boardRow: cell.row, boardCol: cell.col, score });
+            }
+        }
+
+        if (candidates.length === 0) {
+            return {
+                pionCol: (aiCurrentPos + 1) % MULT_COLS,
+                boardRow: -1,
+                boardCol: -1,
+                noMoves: true
+            };
+        }
+
+        candidates.sort((a, b) => b.score - a.score);
+        return candidates[0];
     }
 
     // ============================================
