@@ -10,6 +10,10 @@ const MIN_CELL_VALUE = 2;
 const MAX_CELL_VALUE = 18;
 
 const Game = (() => {
+    // ---- Series Score (persists across "Play Again", resets on menu/home) ----
+    let seriesScore = [0, 0]; // [player1Wins, player2Wins]
+    let seriesDraws = 0;
+
     // ---- State ----
     let state = {
         mode: 'pvp',           // 'pvp' or 'ai'
@@ -201,7 +205,7 @@ const Game = (() => {
         // Check win
         const winResult = checkWin(row, col, state.currentPlayer);
         if (winResult) {
-            state.winner = state.currentPlayer;
+            setWinner(state.currentPlayer);
             state.winCells = winResult;
             return { win: true, winner: state.currentPlayer, winCells: winResult };
         }
@@ -313,11 +317,23 @@ const Game = (() => {
     // ---- Set Winner (for auto game over) ----
     function setWinner(playerIdx) {
         state.winner = playerIdx;
+        seriesScore[playerIdx]++;
     }
 
     // ---- Set Draw ----
     function setDraw() {
         state.winner = -1; // -1 indicates draw
+        seriesDraws++;
+    }
+
+    // ---- Series Score ----
+    function getSeriesScore() {
+        return { scores: [...seriesScore], draws: seriesDraws };
+    }
+
+    function resetSeriesScore() {
+        seriesScore = [0, 0];
+        seriesDraws = 0;
     }
 
     // ---- Disabled Columns (sum would exceed MAX_CELL_VALUE) ----
@@ -439,6 +455,8 @@ const Game = (() => {
         checkAutoGameOver,
         setWinner,
         setDraw,
+        getSeriesScore,
+        resetSeriesScore,
         getDisabledColumns,
         getDisabledColumnsForPlacement,
         getState,

@@ -48,6 +48,8 @@ const UI = (() => {
     const turnIndicator = $('#turn-indicator');
     const turnTimerEl = $('#turn-timer');
     const timerValueEl = $('#timer-value');
+    const timerBarEl = $('#timer-bar');
+    const timerBarTrackEl = $('#timer-bar-track');
     const sumDisplay = $('#sum-value');
     const phaseInstruction = $('#phase-instruction');
     const p1NameDisplay = $('#p1-name-display');
@@ -71,6 +73,18 @@ const UI = (() => {
     const drawPlayAgainBtn = $('#draw-play-again-btn');
     const drawBackMenuBtn = $('#draw-back-menu-btn');
 
+    // Series score & share
+    const winSeriesScore = $('#win-series-score');
+    const drawSeriesScore = $('#draw-series-score');
+    const drawShareSection = $('#draw-share-section');
+    const clipboardToast = $('#clipboard-toast');
+
+    // Win pattern grid
+    const winPatternGrid = $('#win-pattern-grid');
+    const winPatternLabel = $('#win-pattern-label');
+
+    let currentShareText = ''; // share text for current game result
+
     let selectedMode = 'pvp';
     let selectedTimeLimit = 30;
     let aiTimerIds = [];
@@ -90,20 +104,43 @@ const UI = (() => {
     }
 
     // ---- Turn Timer ----
+    function updateTimerBarColor(pct) {
+        if (pct > 50) {
+            timerBarEl.style.backgroundColor = '#22c55e';
+        } else if (pct > 20) {
+            timerBarEl.style.backgroundColor = '#eab308';
+        } else {
+            timerBarEl.style.backgroundColor = '#ef4444';
+        }
+    }
+
     function startTurnTimer() {
         stopTurnTimer();
         const limit = Game.getTimeLimit();
         if (!limit || limit <= 0) {
             turnTimerEl.style.display = 'none';
+            timerBarTrackEl.style.display = 'none';
             return;
         }
         turnTimeRemaining = limit;
         turnTimerEl.style.display = 'block';
+        timerBarTrackEl.style.display = 'block';
         timerValueEl.textContent = turnTimeRemaining;
         turnTimerEl.classList.remove('timer-warning');
+
+        // Reset bar to full instantly, then enable smooth transition
+        timerBarEl.style.transition = 'none';
+        timerBarEl.style.width = '100%';
+        updateTimerBarColor(100);
+        timerBarEl.offsetWidth; // force reflow
+        timerBarEl.style.transition = 'width 1s linear, background-color 1s linear';
+
         turnTimerId = setInterval(() => {
             turnTimeRemaining--;
             timerValueEl.textContent = turnTimeRemaining;
+            const pct = (turnTimeRemaining / limit) * 100;
+            timerBarEl.style.width = pct + '%';
+            updateTimerBarColor(pct);
             if (turnTimeRemaining <= 5) {
                 turnTimerEl.classList.add('timer-warning');
                 if (turnTimeRemaining <= 3) {
@@ -124,6 +161,9 @@ const UI = (() => {
             turnTimerId = null;
         }
         turnTimerEl.classList.remove('timer-warning');
+        timerBarEl.style.transition = 'none';
+        timerBarEl.style.width = '100%';
+        updateTimerBarColor(100);
     }
 
     function onTurnTimeout() {
@@ -190,6 +230,20 @@ const UI = (() => {
             });
         }
 
+        // HTP language toggle (ID / EN)
+        const htpLangBtns = document.querySelectorAll('.htp-lang-btn');
+        const htpLangContents = document.querySelectorAll('.htp-lang-content');
+        htpLangBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.dataset.lang;
+                htpLangBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                htpLangContents.forEach(c => {
+                    c.style.display = c.dataset.lang === lang ? '' : 'none';
+                });
+            });
+        });
+
         // Home screen tiles
         tilePenjumlahan.addEventListener('click', () => {
             isAddActive = true;
@@ -199,6 +253,7 @@ const UI = (() => {
         // Back to home
         backHomeBtn.addEventListener('click', () => {
             isAddActive = false;
+            Game.resetSeriesScore();
             showScreen('home');
         });
 
@@ -243,13 +298,18 @@ const UI = (() => {
         playAgainBtn.addEventListener('click', () => {
             if (!isAddActive) return;
             winOverlay.style.display = 'none';
+            winPatternGrid.innerHTML = '';
+            winPatternLabel.style.display = 'none';
             stopTurnTimer();
             startGame();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isAddActive) return;
             winOverlay.style.display = 'none';
+            winPatternGrid.innerHTML = '';
+            winPatternLabel.style.display = 'none';
             stopTurnTimer();
+            Game.resetSeriesScore();
             showScreen('menu');
         });
 
@@ -259,6 +319,8 @@ const UI = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             Game.skipTurn();
             updateGameUI();
             startTurnTimer();
@@ -273,6 +335,8 @@ const UI = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             stopTurnTimer();
             startGame();
         });
@@ -281,9 +345,21 @@ const UI = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             stopTurnTimer();
+            Game.resetSeriesScore();
             showScreen('menu');
         });
+
+        // Share buttons (win overlay)
+        $('#share-x-btn').addEventListener('click', () => { if (isAddActive) shareToX(); });
+        $('#share-threads-btn').addEventListener('click', () => { if (isAddActive) shareToThreads(); });
+        $('#share-ig-btn').addEventListener('click', () => { if (isAddActive) shareToIG(); });
+        // Share buttons (draw overlay)
+        $('#draw-share-x-btn').addEventListener('click', () => { if (isAddActive) shareToX(); });
+        $('#draw-share-threads-btn').addEventListener('click', () => { if (isAddActive) shareToThreads(); });
+        $('#draw-share-ig-btn').addEventListener('click', () => { if (isAddActive) shareToIG(); });
 
         // Restore saved player names
         try {
@@ -884,6 +960,9 @@ const UI = (() => {
         const players = Game.getPlayers();
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
+        renderWinPatternGrid(Game.getBoard(), Game.getWinCells(), BOARD_SIZE);
+        updateSeriesScoreDisplay(winSeriesScore, players);
+        currentShareText = buildShareText(players);
         winOverlay.style.display = 'flex';
     }
 
@@ -900,6 +979,9 @@ const UI = (() => {
             `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
     }
 
@@ -919,6 +1001,9 @@ const UI = (() => {
               `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
     }
 
@@ -927,13 +1012,155 @@ const UI = (() => {
         stopTurnTimer();
         SFX.draw();
         Game.setDraw();
+        const players = Game.getPlayers();
         drawTitle.textContent = '🤝 Seri!';
         drawMessage.textContent =
             'Tidak ada langkah tersisa yang menghasilkan angka yang tersedia di Board Permainan. ' +
             'Permainan berakhir seri.';
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
+    }
+
+    // ============================================
+    // SERIES SCORE & SHARE
+    // ============================================
+    function updateSeriesScoreDisplay(el, players) {
+        const series = Game.getSeriesScore();
+        el.innerHTML =
+            `<span class="score-name score-name-blue">${escapeHTML(players[0].name)}</span>` +
+            `<span class="score-box score-box-blue">${series.scores[0]}</span>` +
+            `<span class="score-dash">–</span>` +
+            `<span class="score-box score-box-red">${series.scores[1]}</span>` +
+            `<span class="score-name score-name-red">${escapeHTML(players[1].name)}</span>`;
+        el.style.display = '';
+    }
+
+    // ---- Win Pattern Grid helpers ----
+    function buildWinPatternData(board, winCells, boardSize) {
+        if (!winCells || winCells.length === 0) return null;
+        let minR = boardSize, maxR = 0, minC = boardSize, maxC = 0;
+        for (const { row, col } of winCells) {
+            if (row < minR) minR = row;
+            if (row > maxR) maxR = row;
+            if (col < minC) minC = col;
+            if (col > maxC) maxC = col;
+        }
+        // Expand by 1 cell padding, clamped
+        const startRow = Math.max(0, minR - 1);
+        const endRow = Math.min(boardSize - 1, maxR + 1);
+        const startCol = Math.max(0, minC - 1);
+        const endCol = Math.min(boardSize - 1, maxC + 1);
+
+        const winSet = new Set(winCells.map(c => `${c.row},${c.col}`));
+        const grid = [];
+        for (let r = startRow; r <= endRow; r++) {
+            const row = [];
+            for (let c = startCol; c <= endCol; c++) {
+                row.push({
+                    value: board[r][c].value,
+                    owner: board[r][c].owner,
+                    isWinCell: winSet.has(`${r},${c}`)
+                });
+            }
+            grid.push(row);
+        }
+        return { startRow, startCol, endRow, endCol, grid };
+    }
+
+    function renderWinPatternGrid(board, winCells, boardSize) {
+        winPatternGrid.innerHTML = '';
+        const data = buildWinPatternData(board, winCells, boardSize);
+        if (!data) {
+            winPatternLabel.style.display = 'none';
+            return;
+        }
+        winPatternLabel.style.display = '';
+        const cols = data.grid[0].length;
+        winPatternGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
+        for (const row of data.grid) {
+            for (const cell of row) {
+                const el = document.createElement('div');
+                el.className = 'win-pat-cell';
+                if (cell.owner === 0) el.classList.add('win-pat-blue');
+                else if (cell.owner === 1) el.classList.add('win-pat-red');
+                else el.classList.add('win-pat-empty');
+                if (cell.isWinCell) el.classList.add('win-pat-highlight');
+                el.textContent = cell.value;
+                winPatternGrid.appendChild(el);
+            }
+        }
+    }
+
+    function buildWinPatternEmoji(board, winCells, boardSize) {
+        const data = buildWinPatternData(board, winCells, boardSize);
+        if (!data) return '';
+        let lines = [];
+        for (const row of data.grid) {
+            let line = '';
+            for (const cell of row) {
+                if (cell.owner === 0) line += '🟦';
+                else if (cell.owner === 1) line += '🟥';
+                else line += '⬜';
+            }
+            lines.push(line);
+        }
+        return '\n📍 Pola Kemenangan:\n' + lines.join('\n');
+    }
+
+    function buildShareText(players) {
+        const series = Game.getSeriesScore();
+        const winner = Game.getWinner();
+        let result = '';
+        if (winner === -1) {
+            result = '🤝 Seri!';
+        } else if (winner !== null) {
+            result = `🏆 ${players[winner].name} menang!`;
+        }
+        let patternText = '';
+        if (winner !== null && winner !== -1) {
+            patternText = buildWinPatternEmoji(Game.getBoard(), Game.getWinCells(), BOARD_SIZE);
+        }
+        return `🎮 Dolanan Matematika — Rumah Penjumlahan\n` +
+            `${result}\n` +
+            `📊 Skor: ${players[0].name} ${series.scores[0]} – ${series.scores[1]} ${players[1].name}` +
+            `${patternText}\n` +
+            `\nMain juga di dolananmatematika.com!`;
+    }
+
+    function shareToX() {
+        SFX.click();
+        const url = 'https://dolananmatematika.com';
+        const text = encodeURIComponent(currentShareText);
+        window.open(`https://x.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank', 'noopener');
+    }
+
+    function shareToThreads() {
+        SFX.click();
+        const text = encodeURIComponent(currentShareText + '\nhttps://dolananmatematika.com');
+        window.open(`https://www.threads.net/intent/post?text=${text}`, '_blank', 'noopener');
+    }
+
+    function shareToIG() {
+        SFX.click();
+        const text = currentShareText + '\nhttps://dolananmatematika.com';
+        navigator.clipboard.writeText(text).then(() => {
+            clipboardToast.classList.add('show');
+            setTimeout(() => clipboardToast.classList.remove('show'), 2500);
+        }).catch(() => {
+            // Fallback for older browsers
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            clipboardToast.classList.add('show');
+            setTimeout(() => clipboardToast.classList.remove('show'), 2500);
+        });
     }
 
     // ============================================

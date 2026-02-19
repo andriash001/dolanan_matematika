@@ -62,13 +62,13 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
     <!-- ==================== HOME SCREEN ==================== -->
     <main id="home-screen" class="screen active">
         <div class="home-container">
-            <h1 class="game-title">🎲 Dolanan Matematika</h1>
+            <h1 class="game-title"><span class="title-icon">🎮</span> Dolanan Matematika</h1>
             <p class="home-subtitle">Pilih Permainan</p>
 
             <div class="game-grid">
@@ -84,7 +84,7 @@
                 </button>
             </div>
 
-            <button class="secondary-btn how-to-play-btn" id="how-to-play-btn">📖 Cara Bermain</button>
+            <button class="secondary-btn how-to-play-btn" id="how-to-play-btn">📖 How to Play</button>
         </div>
     </main>
 
@@ -194,6 +194,7 @@
                 <div class="turn-center">
                     <div class="turn-indicator" id="turn-indicator" aria-live="polite">Giliran: Pemain 1</div>
                     <div class="turn-timer" id="turn-timer" style="display:none;">⏱ <span id="timer-value">30</span>s</div>
+                    <div class="timer-bar-track" id="timer-bar-track" style="display:none;"><div class="timer-bar" id="timer-bar"></div></div>
                 </div>
                 <div class="player-info player2-info" id="player2-info">
                     <div class="player-pion pion-red"></div>
@@ -331,6 +332,7 @@
                 <div class="turn-center">
                     <div class="turn-indicator" id="turn-indicator-mult" aria-live="polite">Giliran: Pemain 1</div>
                     <div class="turn-timer" id="turn-timer-mult" style="display:none;">⏱ <span id="timer-value-mult">30</span>s</div>
+                    <div class="timer-bar-track" id="timer-bar-track-mult" style="display:none;"><div class="timer-bar" id="timer-bar-mult"></div></div>
                 </div>
                 <div class="player-info player2-info" id="player2-info-mult">
                     <div class="player-pion pion-red"></div>
@@ -367,9 +369,26 @@
         <div class="win-content">
             <h2 id="win-title">🎉 Selamat!</h2>
             <p id="win-message"></p>
+            <p class="win-pattern-label" id="win-pattern-label" style="display:none;">Pola Kemenangan:</p>
+            <div class="win-pattern-grid" id="win-pattern-grid"></div>
+            <div id="win-series-score" class="series-score"></div>
             <div class="win-buttons">
                 <button id="play-again-btn" class="primary-btn">Main Lagi</button>
                 <button id="back-menu-btn" class="secondary-btn">Kembali ke Menu</button>
+            </div>
+            <div class="share-section">
+                <p class="share-label">Bagikan:</p>
+                <div class="share-buttons">
+                    <button id="share-x-btn" class="share-btn share-x" title="Bagikan ke X">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </button>
+                    <button id="share-threads-btn" class="share-btn share-threads" title="Bagikan ke Threads">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.432 1.781 3.632 2.695 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.17.408-2.208 1.332-2.927.812-.63 1.9-.976 3.263-1.04.984-.045 1.906.026 2.763.208-.168-.89-.546-1.56-1.123-1.996-.66-.5-1.577-.756-2.726-.76h-.027c-.86 0-1.98.19-2.8.86l-1.244-1.606c1.163-.9 2.653-1.373 4.07-1.373h.04c3.013.012 5.093 1.796 5.553 4.764.265-.07.536-.12.808-.152l.019-.002c1.395-.134 2.736.12 3.874.733 1.206.65 2.1 1.61 2.586 2.77.834 1.988.758 4.887-1.453 7.054-1.852 1.816-4.162 2.614-7.479 2.636zM10.288 15.7c.058 0 .117-.002.177-.006 1.233-.067 2.14-.72 2.326-1.67-.596-.12-1.235-.182-1.9-.182-.467 0-2.355.067-2.449 1.276-.037.482.332.89.792 1.14.513.28 1.312.442 2.054.442z"/></svg>
+                    </button>
+                    <button id="share-ig-btn" class="share-btn share-ig" title="Salin teks untuk Instagram">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -379,10 +398,25 @@
         <div class="win-content">
             <h2 id="draw-title">😐 Tidak Ada Langkah</h2>
             <p id="draw-message">Tidak ada cell tersedia untuk hasil penjumlahan ini.</p>
+            <div id="draw-series-score" class="series-score"></div>
             <button id="draw-continue-btn" class="primary-btn">Lanjutkan</button>
             <div id="draw-gameover-buttons" class="win-buttons" style="display:none;">
                 <button id="draw-play-again-btn" class="primary-btn">Main Lagi</button>
                 <button id="draw-back-menu-btn" class="secondary-btn">Kembali ke Menu</button>
+            </div>
+            <div id="draw-share-section" class="share-section" style="display:none;">
+                <p class="share-label">Bagikan:</p>
+                <div class="share-buttons">
+                    <button id="draw-share-x-btn" class="share-btn share-x" title="Bagikan ke X">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </button>
+                    <button id="draw-share-threads-btn" class="share-btn share-threads" title="Bagikan ke Threads">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.432 1.781 3.632 2.695 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.17.408-2.208 1.332-2.927.812-.63 1.9-.976 3.263-1.04.984-.045 1.906.026 2.763.208-.168-.89-.546-1.56-1.123-1.996-.66-.5-1.577-.756-2.726-.76h-.027c-.86 0-1.98.19-2.8.86l-1.244-1.606c1.163-.9 2.653-1.373 4.07-1.373h.04c3.013.012 5.093 1.796 5.553 4.764.265-.07.536-.12.808-.152l.019-.002c1.395-.134 2.736.12 3.874.733 1.206.65 2.1 1.61 2.586 2.77.834 1.988.758 4.887-1.453 7.054-1.852 1.816-4.162 2.614-7.479 2.636zM10.288 15.7c.058 0 .117-.002.177-.006 1.233-.067 2.14-.72 2.326-1.67-.596-.12-1.235-.182-1.9-.182-.467 0-2.355.067-2.449 1.276-.037.482.332.89.792 1.14.513.28 1.312.442 2.054.442z"/></svg>
+                    </button>
+                    <button id="draw-share-ig-btn" class="share-btn share-ig" title="Salin teks untuk Instagram">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -390,53 +424,102 @@
     <!-- ==================== HOW TO PLAY MODAL ==================== -->
     <div id="how-to-play-overlay" class="overlay" style="display:none;">
         <div class="how-to-play-content">
-            <button class="htp-close-btn" id="htp-close-btn" aria-label="Tutup">✕</button>
-            <h2>📖 Cara Bermain</h2>
+            <button class="htp-close-btn" id="htp-close-btn" aria-label="Close">✕</button>
+            <h2>📖 How to Play</h2>
+
+            <div class="htp-lang-toggle">
+                <button class="htp-lang-btn active" data-lang="id">ID</button>
+                <button class="htp-lang-btn" data-lang="en">EN</button>
+            </div>
 
             <div class="htp-body">
-                <div class="htp-section">
-                    <h3>🎯 Tujuan</h3>
-                    <p>Susun <strong>4 pion berjajar</strong> di papan permainan — bisa mendatar, tegak, atau diagonal. Pemain pertama yang berhasil menang!</p>
+                <!-- Indonesian Instructions -->
+                <div class="htp-lang-content" data-lang="id">
+                    <div class="htp-section">
+                        <h3>🎯 Tujuan</h3>
+                        <p>Susun <strong>4 pion berjajar</strong> di papan permainan — bisa mendatar, tegak, atau diagonal. Pemain pertama yang berhasil menang!</p>
+                    </div>
+
+                    <div class="htp-section">
+                        <h3>🪙 Awal Permainan</h3>
+                        <p>Lempar koin untuk menentukan siapa yang mulai duluan. Pemenang koin menempatkan <strong>kedua pion</strong> di board kecil.</p>
+                    </div>
+
+                    <div class="htp-section">
+                        <h3>🎮 Cara Main</h3>
+                        <ol>
+                            <li><strong>Gerakkan pion</strong> kamu di board kecil (penjumlahan atau perkalian) ke angka yang berbeda.</li>
+                            <li>Angka pada kedua pion akan <strong>dijumlahkan</strong> (➕) atau <strong>dikalikan</strong> (✖️).</li>
+                            <li>Pilih salah satu kotak di papan besar yang nilainya <strong>sama dengan hasilnya</strong>.</li>
+                            <li>Kotak itu jadi milikmu! Gantian dengan lawan.</li>
+                        </ol>
+                    </div>
+
+                    <div class="htp-section">
+                        <h3>⚡ Aturan Penting</h3>
+                        <ul>
+                            <li>Giliran pertama: pemenang koin boleh gerakkan pion <strong>manapun</strong>.</li>
+                            <li>Giliran selanjutnya: kamu hanya bisa gerakkan pion <strong>milikmu sendiri</strong>.</li>
+                            <li>Ada batas waktu per giliran — kalau habis, kamu <strong>otomatis kalah</strong>!</li>
+                            <li>Kalau kamu pilih angka yang tidak ada di papan padahal ada pilihan lain, kamu <strong>otomatis kalah</strong>!</li>
+                        </ul>
+                    </div>
+
+                    <div class="htp-section">
+                        <h3>💡 Tips</h3>
+                        <p>Pikirkan 2 langkah ke depan — angka yang kamu pilih juga menentukan pilihan lawanmu!</p>
+                    </div>
                 </div>
 
-                <div class="htp-section">
-                    <h3>🪙 Awal Permainan</h3>
-                    <p>Lempar koin untuk menentukan siapa yang mulai duluan. Pemenang koin menempatkan <strong>kedua pion</strong> di board kecil.</p>
-                </div>
+                <!-- English Instructions -->
+                <div class="htp-lang-content" data-lang="en" style="display:none;">
+                    <div class="htp-section">
+                        <h3>🎯 Objective</h3>
+                        <p>Line up <strong>4 tokens in a row</strong> on the game board — horizontally, vertically, or diagonally. First player to do so wins!</p>
+                    </div>
 
-                <div class="htp-section">
-                    <h3>🎮 Cara Main</h3>
-                    <ol>
-                        <li><strong>Gerakkan pion</strong> kamu di board kecil (penjumlahan atau perkalian) ke angka yang berbeda.</li>
-                        <li>Angka pada kedua pion akan <strong>dijumlahkan</strong> (➕) atau <strong>dikalikan</strong> (✖️).</li>
-                        <li>Pilih salah satu kotak di papan besar yang nilainya <strong>sama dengan hasilnya</strong>.</li>
-                        <li>Kotak itu jadi milikmu! Gantian dengan lawan.</li>
-                    </ol>
-                </div>
+                    <div class="htp-section">
+                        <h3>🪙 Starting the Game</h3>
+                        <p>Flip a coin to decide who goes first. The coin-flip winner places <strong>both tokens</strong> on the small board.</p>
+                    </div>
 
-                <div class="htp-section">
-                    <h3>⚡ Aturan Penting</h3>
-                    <ul>
-                        <li>Giliran pertama: pemenang koin boleh gerakkan pion <strong>manapun</strong>.</li>
-                        <li>Giliran selanjutnya: kamu hanya bisa gerakkan pion <strong>milikmu sendiri</strong>.</li>
-                        <li>Ada batas waktu per giliran — kalau habis, kamu <strong>otomatis kalah</strong>!</li>
-                        <li>Kalau kamu pilih angka yang tidak ada di papan padahal ada pilihan lain, kamu <strong>otomatis kalah</strong>!</li>
-                    </ul>
-                </div>
+                    <div class="htp-section">
+                        <h3>🎮 How to Play</h3>
+                        <ol>
+                            <li><strong>Move your token</strong> on the small board (addition or multiplication) to a different number.</li>
+                            <li>The two tokens' values are <strong>added</strong> (➕) or <strong>multiplied</strong> (✖️).</li>
+                            <li>Pick a cell on the big board whose value <strong>equals the result</strong>.</li>
+                            <li>That cell is yours! Then it's your opponent's turn.</li>
+                        </ol>
+                    </div>
 
-                <div class="htp-section">
-                    <h3>💡 Tips</h3>
-                    <p>Pikirkan 2 langkah ke depan — angka yang kamu pilih juga menentukan pilihan lawanmu!</p>
+                    <div class="htp-section">
+                        <h3>⚡ Important Rules</h3>
+                        <ul>
+                            <li>First turn: coin-flip winner can move <strong>any</strong> token.</li>
+                            <li>Subsequent turns: you can only move <strong>your own</strong> token.</li>
+                            <li>There's a time limit per turn — if it runs out, you <strong>automatically lose</strong>!</li>
+                            <li>If you pick a number not on the board when valid options exist, you <strong>automatically lose</strong>!</li>
+                        </ul>
+                    </div>
+
+                    <div class="htp-section">
+                        <h3>💡 Tips</h3>
+                        <p>Think 2 moves ahead — the number you choose also determines your opponent's options!</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ==================== HELP BUTTON (FLOATING) ==================== -->
-    <button class="floating-help-btn" id="floating-help-btn" aria-label="Cara Bermain" style="display:none;">❓</button>
+    <button class="floating-help-btn" id="floating-help-btn" aria-label="How to Play" style="display:none;">❓</button>
 
     <!-- ==================== SOUND TOGGLE (FLOATING) ==================== -->
     <button class="sound-toggle-btn" id="sound-toggle-btn" aria-label="Suara">🔊</button>
+
+    <!-- ==================== CLIPBOARD TOAST ==================== -->
+    <div id="clipboard-toast" class="clipboard-toast">📋 Teks disalin! Buka Instagram untuk membagikan.</div>
 
     <!-- Noscript fallback for search engines and users without JavaScript -->
     <noscript>
@@ -460,11 +543,11 @@
     </noscript>
 
     <script src="js/sounds.js?v=1"></script>
-    <script src="js/game.js?v=3"></script>
+    <script src="js/game.js?v=4"></script>
     <script src="js/ai.js?v=3"></script>
-    <script src="js/ui.js?v=5"></script>
-    <script src="js/game-perkalian.js?v=1"></script>
+    <script src="js/ui.js?v=6"></script>
+    <script src="js/game-perkalian.js?v=2"></script>
     <script src="js/ai-perkalian.js?v=1"></script>
-    <script src="js/ui-perkalian.js?v=2"></script>
+    <script src="js/ui-perkalian.js?v=3"></script>
 </body>
 </html>

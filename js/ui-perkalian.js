@@ -47,6 +47,8 @@ const UIMult = (() => {
     const turnIndicator = $('#turn-indicator-mult');
     const turnTimerEl = $('#turn-timer-mult');
     const timerValueEl = $('#timer-value-mult');
+    const timerBarEl = $('#timer-bar-mult');
+    const timerBarTrackEl = $('#timer-bar-track-mult');
     const productDisplay = $('#product-value-mult');
     const phaseInstruction = $('#phase-instruction-mult');
     const p1NameDisplay = $('#p1-name-display-mult');
@@ -70,6 +72,18 @@ const UIMult = (() => {
     const drawPlayAgainBtn = $('#draw-play-again-btn');
     const drawBackMenuBtn = $('#draw-back-menu-btn');
 
+    // Series score & share
+    const winSeriesScore = $('#win-series-score');
+    const drawSeriesScore = $('#draw-series-score');
+    const drawShareSection = $('#draw-share-section');
+    const clipboardToast = $('#clipboard-toast');
+
+    // Win pattern grid
+    const winPatternGrid = $('#win-pattern-grid');
+    const winPatternLabel = $('#win-pattern-label');
+
+    let currentShareText = ''; // share text for current game result
+
     let selectedMode = 'pvp';
     let selectedTimeLimit = 30;
     let aiTimerIds = [];
@@ -89,20 +103,43 @@ const UIMult = (() => {
     }
 
     // ---- Turn Timer ----
+    function updateTimerBarColor(pct) {
+        if (pct > 50) {
+            timerBarEl.style.backgroundColor = '#22c55e';
+        } else if (pct > 20) {
+            timerBarEl.style.backgroundColor = '#eab308';
+        } else {
+            timerBarEl.style.backgroundColor = '#ef4444';
+        }
+    }
+
     function startTurnTimer() {
         stopTurnTimer();
         const limit = GameMult.getTimeLimit();
         if (!limit || limit <= 0) {
             turnTimerEl.style.display = 'none';
+            timerBarTrackEl.style.display = 'none';
             return;
         }
         turnTimeRemaining = limit;
         turnTimerEl.style.display = 'block';
+        timerBarTrackEl.style.display = 'block';
         timerValueEl.textContent = turnTimeRemaining;
         turnTimerEl.classList.remove('timer-warning');
+
+        // Reset bar to full instantly, then enable smooth transition
+        timerBarEl.style.transition = 'none';
+        timerBarEl.style.width = '100%';
+        updateTimerBarColor(100);
+        timerBarEl.offsetWidth; // force reflow
+        timerBarEl.style.transition = 'width 1s linear, background-color 1s linear';
+
         turnTimerId = setInterval(() => {
             turnTimeRemaining--;
             timerValueEl.textContent = turnTimeRemaining;
+            const pct = (turnTimeRemaining / limit) * 100;
+            timerBarEl.style.width = pct + '%';
+            updateTimerBarColor(pct);
             if (turnTimeRemaining <= 5) {
                 turnTimerEl.classList.add('timer-warning');
                 if (turnTimeRemaining <= 3) {
@@ -123,6 +160,9 @@ const UIMult = (() => {
             turnTimerId = null;
         }
         turnTimerEl.classList.remove('timer-warning');
+        timerBarEl.style.transition = 'none';
+        timerBarEl.style.width = '100%';
+        updateTimerBarColor(100);
     }
 
     function onTurnTimeout() {
@@ -157,6 +197,7 @@ const UIMult = (() => {
         // Back to home
         backHomeBtn.addEventListener('click', () => {
             isMultActive = false;
+            GameMult.resetSeriesScore();
             showScreen('home');
         });
 
@@ -201,13 +242,18 @@ const UIMult = (() => {
         playAgainBtn.addEventListener('click', () => {
             if (!isMultActive) return;
             winOverlay.style.display = 'none';
+            winPatternGrid.innerHTML = '';
+            winPatternLabel.style.display = 'none';
             stopTurnTimer();
             startGame();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isMultActive) return;
             winOverlay.style.display = 'none';
+            winPatternGrid.innerHTML = '';
+            winPatternLabel.style.display = 'none';
             stopTurnTimer();
+            GameMult.resetSeriesScore();
             showScreen('menu-mult');
         });
 
@@ -217,6 +263,8 @@ const UIMult = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             GameMult.skipTurn();
             updateGameUI();
             startTurnTimer();
@@ -230,6 +278,8 @@ const UIMult = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             stopTurnTimer();
             startGame();
         });
@@ -238,9 +288,21 @@ const UIMult = (() => {
             drawOverlay.style.display = 'none';
             drawContinueBtn.style.display = '';
             drawGameoverButtons.style.display = 'none';
+            drawSeriesScore.style.display = 'none';
+            drawShareSection.style.display = 'none';
             stopTurnTimer();
+            GameMult.resetSeriesScore();
             showScreen('menu-mult');
         });
+
+        // Share buttons (win overlay)
+        $('#share-x-btn').addEventListener('click', () => { if (isMultActive) shareToX(); });
+        $('#share-threads-btn').addEventListener('click', () => { if (isMultActive) shareToThreads(); });
+        $('#share-ig-btn').addEventListener('click', () => { if (isMultActive) shareToIG(); });
+        // Share buttons (draw overlay)
+        $('#draw-share-x-btn').addEventListener('click', () => { if (isMultActive) shareToX(); });
+        $('#draw-share-threads-btn').addEventListener('click', () => { if (isMultActive) shareToThreads(); });
+        $('#draw-share-ig-btn').addEventListener('click', () => { if (isMultActive) shareToIG(); });
 
         // Restore saved player names
         try {
@@ -823,6 +885,9 @@ const UIMult = (() => {
         const players = GameMult.getPlayers();
         winTitle.textContent = '🎉 Selamat!';
         winMessage.textContent = `${players[winnerIdx].name} menang dengan 4 pion berjajar!`;
+        renderWinPatternGrid(GameMult.getBoard(), GameMult.getWinCells(), MULT_BOARD_SIZE);
+        updateSeriesScoreDisplay(winSeriesScore, players);
+        currentShareText = buildShareText(players);
         winOverlay.style.display = 'flex';
     }
 
@@ -839,6 +904,9 @@ const UIMult = (() => {
             `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
     }
 
@@ -857,6 +925,9 @@ const UIMult = (() => {
               `${players[winner].name} menang otomatis!`;
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
     }
 
@@ -864,13 +935,153 @@ const UIMult = (() => {
         stopTurnTimer();
         SFX.draw();
         GameMult.setDraw();
+        const players = GameMult.getPlayers();
         drawTitle.textContent = '🤝 Seri!';
         drawMessage.textContent =
             'Tidak ada langkah tersisa yang menghasilkan angka yang tersedia di Board Permainan. ' +
             'Permainan berakhir seri.';
         drawContinueBtn.style.display = 'none';
         drawGameoverButtons.style.display = 'flex';
+        updateSeriesScoreDisplay(drawSeriesScore, players);
+        drawShareSection.style.display = '';
+        currentShareText = buildShareText(players);
         drawOverlay.style.display = 'flex';
+    }
+
+    // ============================================
+    // SERIES SCORE & SHARE
+    // ============================================
+    function updateSeriesScoreDisplay(el, players) {
+        const series = GameMult.getSeriesScore();
+        el.innerHTML =
+            `<span class="score-name score-name-blue">${escapeHTML(players[0].name)}</span>` +
+            `<span class="score-box score-box-blue">${series.scores[0]}</span>` +
+            `<span class="score-dash">–</span>` +
+            `<span class="score-box score-box-red">${series.scores[1]}</span>` +
+            `<span class="score-name score-name-red">${escapeHTML(players[1].name)}</span>`;
+        el.style.display = '';
+    }
+
+    // ---- Win Pattern Grid helpers ----
+    function buildWinPatternData(board, winCells, boardSize) {
+        if (!winCells || winCells.length === 0) return null;
+        let minR = boardSize, maxR = 0, minC = boardSize, maxC = 0;
+        for (const { row, col } of winCells) {
+            if (row < minR) minR = row;
+            if (row > maxR) maxR = row;
+            if (col < minC) minC = col;
+            if (col > maxC) maxC = col;
+        }
+        const startRow = Math.max(0, minR - 1);
+        const endRow = Math.min(boardSize - 1, maxR + 1);
+        const startCol = Math.max(0, minC - 1);
+        const endCol = Math.min(boardSize - 1, maxC + 1);
+
+        const winSet = new Set(winCells.map(c => `${c.row},${c.col}`));
+        const grid = [];
+        for (let r = startRow; r <= endRow; r++) {
+            const row = [];
+            for (let c = startCol; c <= endCol; c++) {
+                row.push({
+                    value: board[r][c].value,
+                    owner: board[r][c].owner,
+                    isWinCell: winSet.has(`${r},${c}`)
+                });
+            }
+            grid.push(row);
+        }
+        return { startRow, startCol, endRow, endCol, grid };
+    }
+
+    function renderWinPatternGrid(board, winCells, boardSize) {
+        winPatternGrid.innerHTML = '';
+        const data = buildWinPatternData(board, winCells, boardSize);
+        if (!data) {
+            winPatternLabel.style.display = 'none';
+            return;
+        }
+        winPatternLabel.style.display = '';
+        const cols = data.grid[0].length;
+        winPatternGrid.style.gridTemplateColumns = `repeat(${cols}, 34px)`;
+        for (const row of data.grid) {
+            for (const cell of row) {
+                const el = document.createElement('div');
+                el.className = 'win-pat-cell';
+                if (cell.owner === 0) el.classList.add('win-pat-blue');
+                else if (cell.owner === 1) el.classList.add('win-pat-red');
+                else el.classList.add('win-pat-empty');
+                if (cell.isWinCell) el.classList.add('win-pat-highlight');
+                el.textContent = cell.value;
+                winPatternGrid.appendChild(el);
+            }
+        }
+    }
+
+    function buildWinPatternEmoji(board, winCells, boardSize) {
+        const data = buildWinPatternData(board, winCells, boardSize);
+        if (!data) return '';
+        let lines = [];
+        for (const row of data.grid) {
+            let line = '';
+            for (const cell of row) {
+                if (cell.owner === 0) line += '🟦';
+                else if (cell.owner === 1) line += '🟥';
+                else line += '⬜';
+            }
+            lines.push(line);
+        }
+        return '\n📍 Pola Kemenangan:\n' + lines.join('\n');
+    }
+
+    function buildShareText(players) {
+        const series = GameMult.getSeriesScore();
+        const winner = GameMult.getWinner();
+        let result = '';
+        if (winner === -1) {
+            result = '🤝 Seri!';
+        } else if (winner !== null) {
+            result = `🏆 ${players[winner].name} menang!`;
+        }
+        let patternText = '';
+        if (winner !== null && winner !== -1) {
+            patternText = buildWinPatternEmoji(GameMult.getBoard(), GameMult.getWinCells(), MULT_BOARD_SIZE);
+        }
+        return `🎮 Dolanan Matematika — Rumah Perkalian\n` +
+            `${result}\n` +
+            `📊 Skor: ${players[0].name} ${series.scores[0]} – ${series.scores[1]} ${players[1].name}` +
+            `${patternText}\n` +
+            `\nMain juga di dolananmatematika.com!`;
+    }
+
+    function shareToX() {
+        SFX.click();
+        const url = 'https://dolananmatematika.com';
+        const text = encodeURIComponent(currentShareText);
+        window.open(`https://x.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank', 'noopener');
+    }
+
+    function shareToThreads() {
+        SFX.click();
+        const text = encodeURIComponent(currentShareText + '\nhttps://dolananmatematika.com');
+        window.open(`https://www.threads.net/intent/post?text=${text}`, '_blank', 'noopener');
+    }
+
+    function shareToIG() {
+        SFX.click();
+        const text = currentShareText + '\nhttps://dolananmatematika.com';
+        navigator.clipboard.writeText(text).then(() => {
+            clipboardToast.classList.add('show');
+            setTimeout(() => clipboardToast.classList.remove('show'), 2500);
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            clipboardToast.classList.add('show');
+            setTimeout(() => clipboardToast.classList.remove('show'), 2500);
+        });
     }
 
     // ============================================

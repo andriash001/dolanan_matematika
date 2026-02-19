@@ -44,13 +44,15 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **AI Opponent**: Heuristic-based AI that evaluates streaks, blocks threats, and prefers center control
 - **Mobile-Friendly**: Responsive layout with `100dvh` viewport fix, touch-optimized targets, and landscape support
 - **Sound Effects**: Web Audio API-generated sounds for cell placement, coin toss, win celebration, timer warnings, and more — with mute toggle
-- **How to Play Guide**: In-app tutorial modal ("Cara Bermain") with kid-friendly rules in Indonesian, plus a floating help button during gameplay
+- **Series Scoreboard**: Football-style scoreboard tracks wins across rounds (e.g., `Pemain 1 [2] – [1] AI`); persists through "Play Again", resets on menu/home navigation
+- **Social Sharing**: Share game results to **X (Twitter)**, **Threads**, or copy to clipboard for **Instagram** — with score and winner in the share text
+- **How to Play Guide**: In-app tutorial modal ("How to Play") with bilingual instructions (Indonesian and English, switchable via ID/EN toggle), plus a floating help button during gameplay
 - **Accessibility**: ARIA live regions, grid roles, semantic HTML, and colorblind-friendly player symbols (● / ▲)
 - **Player Name Persistence**: Names saved in `localStorage` across sessions
 - **Leave-Game Protection**: Browser warning when navigating away mid-game
 - **Dark Theme UI**: Modern, polished interface with smooth animations
 - **SEO Optimized**: Target keywords ("Rumah Penjumlahan", "Rumah Perkalian") in title, meta description, and heading hierarchy; canonical URL, JSON-LD structured data (`WebApplication` schema), `<noscript>` fallback content for crawlers, `robots.txt`, and `sitemap.xml`
-- **Social Sharing**: Full Open Graph (with 1200×630 PNG image), Twitter Card meta tags, locale, and site name — previews render correctly on WhatsApp, Facebook, Twitter/X, LinkedIn, etc.
+- **Social Sharing Meta**: Full Open Graph (with 1200×630 PNG image), Twitter Card meta tags, locale, and site name — previews render correctly on WhatsApp, Facebook, Twitter/X, LinkedIn, etc.
 - **PWA-Ready**: Web app manifest with icons (192px, 512px, Apple Touch Icon), theme color, and standalone display mode
 - **No Dependencies**: Pure HTML/CSS/JS — no frameworks or build tools required
 
