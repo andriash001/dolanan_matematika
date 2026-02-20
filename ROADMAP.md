@@ -45,7 +45,8 @@
 
 ### 0.3 — Extract & Improve AI
 - Extract AI from `js/ai.js` and `js/ai-perkalian.js` into `packages/shared`
-- Add difficulty levels (Easy: random moves, Medium: current heuristic, Hard: minimax with alpha-beta pruning)
+- ✅ Add difficulty levels (Easy / Normal / Hard). Current Hard uses heuristic + limited depth-2 lookahead.
+- Future upgrade: replace Hard lookahead with deeper minimax + alpha-beta pruning after shared engine extraction.
 - Unit test all AI difficulty levels
 
 **Deliverables**: Clean monorepo, typed game engine, tested AI, CI pipeline
@@ -72,7 +73,7 @@
 
 ### 1.3 — Local Play (Offline-First)
 - PvP on same device — identical to current functionality
-- PvAI with selectable difficulty (Easy / Medium / Hard)
+- PvAI with selectable difficulty (Easy / Normal / Hard)
 - Store game preferences in localStorage (backward compatible)
 - This is the "fallback" mode — always works without internet
 

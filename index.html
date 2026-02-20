@@ -85,6 +85,13 @@
             </div>
 
             <button class="secondary-btn how-to-play-btn" id="how-to-play-btn">📖 How to Play</button>
+
+            <footer class="home-footer">
+                <a href="https://github.com/andriash001/dolanan_matematika" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:-2px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    Source Code
+                </a>
+            </footer>
         </div>
     </main>
 
@@ -111,6 +118,15 @@
                             <span class="mode-icon">🤖</span>
                             <span class="mode-label">vs AI</span>
                         </button>
+                    </div>
+                </div>
+
+                <div class="timer-selection" id="difficulty-selection" style="display:none;">
+                    <h3>Level AI</h3>
+                    <div class="timer-buttons">
+                        <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
+                        <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
+                        <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
                     </div>
                 </div>
 
@@ -161,6 +177,8 @@
                 <p id="coin-result-text"></p>
                 <button id="coin-continue-btn" class="primary-btn">Lanjutkan</button>
             </div>
+
+            <button id="coin-back-home-btn" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
         </div>
     </div>
 
@@ -252,6 +270,15 @@
                     </div>
                 </div>
 
+                <div class="timer-selection" id="difficulty-selection-mult" style="display:none;">
+                    <h3>Level AI</h3>
+                    <div class="timer-buttons">
+                        <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
+                        <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
+                        <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
+                    </div>
+                </div>
+
                 <div class="timer-selection">
                     <h3>Batas Waktu per Giliran</h3>
                     <div class="timer-buttons">
@@ -299,6 +326,8 @@
                 <p id="coin-result-text-mult"></p>
                 <button id="coin-continue-btn-mult" class="primary-btn">Lanjutkan</button>
             </div>
+
+            <button id="coin-back-home-btn-mult" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
         </div>
     </div>
 
@@ -369,11 +398,12 @@
         <div class="win-content">
             <h2 id="win-title">🎉 Selamat!</h2>
             <p id="win-message"></p>
+            <div id="win-summary-meta" class="summary-meta"></div>
             <p class="win-pattern-label" id="win-pattern-label" style="display:none;">Pola Kemenangan:</p>
             <div class="win-pattern-grid" id="win-pattern-grid"></div>
             <div id="win-series-score" class="series-score"></div>
             <div class="win-buttons">
-                <button id="play-again-btn" class="primary-btn">Main Lagi</button>
+                <button id="play-again-btn" class="primary-btn">Rematch</button>
                 <button id="back-menu-btn" class="secondary-btn">Kembali ke Menu</button>
             </div>
             <div class="share-section">
@@ -398,10 +428,11 @@
         <div class="win-content">
             <h2 id="draw-title">😐 Tidak Ada Langkah</h2>
             <p id="draw-message">Tidak ada cell tersedia untuk hasil penjumlahan ini.</p>
+            <div id="draw-summary-meta" class="summary-meta"></div>
             <div id="draw-series-score" class="series-score"></div>
             <button id="draw-continue-btn" class="primary-btn">Lanjutkan</button>
             <div id="draw-gameover-buttons" class="win-buttons" style="display:none;">
-                <button id="draw-play-again-btn" class="primary-btn">Main Lagi</button>
+                <button id="draw-play-again-btn" class="primary-btn">Rematch</button>
                 <button id="draw-back-menu-btn" class="secondary-btn">Kembali ke Menu</button>
             </div>
             <div id="draw-share-section" class="share-section" style="display:none;">
@@ -543,11 +574,11 @@
     </noscript>
 
     <script src="js/sounds.js?v=1"></script>
-    <script src="js/game.js?v=4"></script>
-    <script src="js/ai.js?v=3"></script>
-    <script src="js/ui.js?v=6"></script>
-    <script src="js/game-perkalian.js?v=2"></script>
-    <script src="js/ai-perkalian.js?v=1"></script>
-    <script src="js/ui-perkalian.js?v=3"></script>
+    <script src="js/game.js?v=5"></script>
+    <script src="js/ai.js?v=4"></script>
+    <script src="js/ui.js?v=8"></script>
+    <script src="js/game-perkalian.js?v=3"></script>
+    <script src="js/ai-perkalian.js?v=2"></script>
+    <script src="js/ui-perkalian.js?v=5"></script>
 </body>
 </html>
