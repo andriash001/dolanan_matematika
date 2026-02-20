@@ -12,6 +12,7 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 ## Table of Contents
 
 - [Features](#features)
+- [Recent Updates](#recent-updates)
 - [Available Games](#available-games)
 - [How to Play](#how-to-play)
   - [Home Screen](#home-screen)
@@ -27,6 +28,7 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
   - [Auto Game Over](#auto-game-over)
   - [Turn Timer](#turn-timer)
 - [AI Opponent](#ai-opponent)
+- [AI Implementation Docs](#ai-implementation-docs)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
@@ -58,6 +60,12 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **Social Sharing Meta**: Full Open Graph (with 1200×630 PNG image), Twitter Card meta tags, locale, and site name — previews render correctly on WhatsApp, Facebook, Twitter/X, LinkedIn, etc.
 - **PWA-Ready**: Web app manifest with icons (192px, 512px, Apple Touch Icon), theme color, and standalone display mode
 - **No Dependencies**: Pure HTML/CSS/JS — no frameworks or build tools required
+
+---
+
+## Recent Updates
+
+- **Result Modal Overflow Fix (Win + Draw)**: The end-of-round modal (`.win-content`) now uses viewport-safe max height and internal vertical scrolling so long content (including tall vertical-pattern previews) stays accessible on small or landscape screens.
 
 ---
 
@@ -217,6 +225,23 @@ For **initial placement** and the first board placement after coin toss, the sam
 
 ---
 
+## AI Implementation Docs
+
+Recommended structure:
+
+- Keep **README** focused on product-level summary (difficulty tiers, high-level AI priorities).
+- Put full technical details in a dedicated document: **[`docs/AI-IMPLEMENTATION.md`](docs/AI-IMPLEMENTATION.md)**.
+
+The dedicated AI document is the right place for:
+
+- architecture differences between `AI` (Addition) and `AIMult` (Multiplication),
+- move scoring weights and tie-break order,
+- opening/placement strategy per difficulty,
+- lookahead flow for Hard mode,
+- extension guidelines for future AI tuning.
+
+---
+
 ## Tech Stack
 
 - **HTML5** — Semantic markup (`<main>`, ARIA attributes), single-page structure
@@ -250,6 +275,8 @@ dolanan_matematika/
 │   ├── game-perkalian.js  # Perkalian: core game logic (GameMult module)
 │   ├── ai-perkalian.js    # Perkalian: AI opponent (AIMult module)
 │   └── ui-perkalian.js    # Perkalian: DOM & event handling (UIMult module)
+├── docs/
+│   └── AI-IMPLEMENTATION.md # Detailed AI architecture and tuning notes
 ├── README.md
 ├── ROADMAP.md
 └── LICENSE
