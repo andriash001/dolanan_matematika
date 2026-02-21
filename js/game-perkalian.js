@@ -47,18 +47,49 @@ const GameMult = (() => {
 
     // ---- Board Generation ----
     function generateBoard() {
+        const totalCells = MULT_BOARD_SIZE * MULT_BOARD_SIZE;
+        const values = [...VALID_PRODUCTS];
+
+        while (values.length < totalCells) {
+            values.push(VALID_PRODUCTS[randomInt(0, VALID_PRODUCTS.length - 1)]);
+        }
+
+        for (let i = values.length - 1; i > 0; i--) {
+            const j = randomInt(0, i);
+            const temp = values[i];
+            values[i] = values[j];
+            values[j] = temp;
+        }
+
         const board = [];
+        let index = 0;
         for (let r = 0; r < MULT_BOARD_SIZE; r++) {
             const row = [];
             for (let c = 0; c < MULT_BOARD_SIZE; c++) {
                 row.push({
-                    value: VALID_PRODUCTS[randomInt(0, VALID_PRODUCTS.length - 1)],
+                    value: values[index++],
                     owner: null
                 });
             }
             board.push(row);
         }
+
+        validateBoardCoverage(board);
         return board;
+    }
+
+    function validateBoardCoverage(board) {
+        const present = new Set();
+        for (let r = 0; r < MULT_BOARD_SIZE; r++) {
+            for (let c = 0; c < MULT_BOARD_SIZE; c++) {
+                present.add(board[r][c].value);
+            }
+        }
+
+        const missing = VALID_PRODUCTS.filter((value) => !present.has(value));
+        if (missing.length > 0) {
+            console.warn('GameMult: missing valid products in generated board:', missing);
+        }
     }
 
     function randomInt(min, max) {

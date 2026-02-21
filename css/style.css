@@ -434,6 +434,10 @@ body {
 .home-footer {
     margin-top: 16px;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
 }
 
 .home-footer a {
@@ -445,12 +449,19 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    line-height: 1;
 }
 
 .home-footer a:hover,
 .home-footer a:focus-visible {
     color: var(--text);
     opacity: 1;
+}
+
+.home-footer-separator {
+    color: var(--text-muted);
+    opacity: 0.5;
+    line-height: 1;
 }
 
 /* ============================================
