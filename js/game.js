@@ -40,18 +40,54 @@ const Game = (() => {
 
     // ---- Board Generation ----
     function generateBoard() {
+        const totalCells = BOARD_SIZE * BOARD_SIZE;
+        const validSums = [];
+
+        for (let value = MIN_CELL_VALUE; value <= MAX_CELL_VALUE; value++) {
+            validSums.push(value);
+        }
+
+        const values = [...validSums];
+        while (values.length < totalCells) {
+            values.push(validSums[randomInt(0, validSums.length - 1)]);
+        }
+
+        for (let i = values.length - 1; i > 0; i--) {
+            const j = randomInt(0, i);
+            const temp = values[i];
+            values[i] = values[j];
+            values[j] = temp;
+        }
+
         const board = [];
+        let index = 0;
         for (let r = 0; r < BOARD_SIZE; r++) {
             const row = [];
             for (let c = 0; c < BOARD_SIZE; c++) {
                 row.push({
-                    value: randomInt(MIN_CELL_VALUE, MAX_CELL_VALUE),
+                    value: values[index++],
                     owner: null
                 });
             }
             board.push(row);
         }
+
+        validateBoardCoverage(board, validSums);
         return board;
+    }
+
+    function validateBoardCoverage(board, validSums) {
+        const present = new Set();
+        for (let r = 0; r < BOARD_SIZE; r++) {
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                present.add(board[r][c].value);
+            }
+        }
+
+        const missing = validSums.filter((value) => !present.has(value));
+        if (missing.length > 0) {
+            console.warn('Game: missing valid sums in generated board:', missing);
+        }
     }
 
     function randomInt(min, max) {
