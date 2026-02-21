@@ -6,6 +6,8 @@
 
 **Last updated**: February 2026
 
+**Feature intake**: New feature requests are logged in [GitHub Issues](https://github.com/andriash001/dolanan_matematika/issues) and promoted into this roadmap after triage.
+
 ---
 
 ## Recommended Tech Stack

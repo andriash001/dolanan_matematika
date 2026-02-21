@@ -12,6 +12,7 @@ Thank you for your interest in contributing to **Dolanan Matematika**! We welcom
 - [Areas for Contribution](#areas-for-contribution)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Features](#suggesting-features)
+- [Issue Triage Labels](#issue-triage-labels)
 - [Pull Request Process](#pull-request-process)
 
 ---
@@ -210,7 +211,7 @@ style(colors): improve contrast for accessibility
 
 ### How to Report
 
-Click **Issues** → **New Issue** and include:
+Click **Issues** → **Bug Report** and include:
 
 - **Environment:** Browser, device, and OS
 - **Expected Behavior:** What should happen
@@ -231,13 +232,35 @@ Click **Issues** → **New Issue** and include:
 
 ### How to Suggest
 
-Click **Issues** → **New Issue** and include:
+Click **Issues** → **Feature Request** and include:
 
 - **Problem:** What user problem does this solve?
 - **Solution:** Describe the feature
 - **Alternatives:** Other ways to solve this?
 - **Target Audience:** Which grade? SD Kelas __?
 - **Example:** Sketch, mock-up, or use case
+
+---
+
+## Issue Triage Labels
+
+We track all user feedback and feature requests in [GitHub Issues](https://github.com/andriash001/dolanan_matematika/issues) with a simple label system:
+
+- `bug` — confirmed defect
+- `feature` — proposed enhancement
+- `question` — clarification or general feedback
+- `needs-triage` — newly opened, pending review
+- `good first issue` — beginner-friendly contribution
+- `priority:P1` — urgent/high impact
+- `priority:P2` — important, normal priority
+- `priority:P3` — nice-to-have/low urgency
+
+### Triage Order
+
+1. Apply type label (`bug` / `feature` / `question`)
+2. Remove `needs-triage` once reviewed
+3. Add one priority label (`priority:P1` / `priority:P2` / `priority:P3`)
+4. Link accepted feature requests to [ROADMAP.md](ROADMAP.md)
 
 ---
 
@@ -281,8 +304,7 @@ Click **Issues** → **New Issue** and include:
 
 ## Questions?
 
-- **Found a bug?** Open a [GitHub Issue](https://github.com/andriash001/dolanan_matematika/issues)
-- **Want to chat?** Start a [GitHub Discussion](https://github.com/andriash001/dolanan_matematika/discussions)
+- **Found a bug, idea, or feedback?** Open a [GitHub Issue](https://github.com/andriash001/dolanan_matematika/issues)
 
 ---
 

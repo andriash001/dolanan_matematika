@@ -32,6 +32,7 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Feedback & Feature Requests](#feedback--feature-requests)
 - [License](#license)
 
 ---
@@ -142,7 +143,7 @@ Winning cells glow green to celebrate the victory.
 
 | Board | Size | Description |
 |-------|------|-------------|
-| **Game Board** | 10×10 | Each cell has a random value between **2 and 18**. Players claim cells by matching the current sum. |
+| **Game Board** | 10×10 | Each cell has a random value between **2 and 18**. At game start, every valid value from 2 to 18 is guaranteed to appear at least once on the board. Players claim cells by matching the current sum. |
 | **Addition Board** | 2×10 | Two rows of values **1–10**. Row 1 = Player 1 (Blue), Row 2 = Player 2 (Red). Each row has one pion. |
 
 **Sum Calculation:**
@@ -160,7 +161,7 @@ Sum = (Player 1's pion value) + (Player 2's pion value)
 
 | Board | Size | Description |
 |-------|------|-------------|
-| **Game Board** | 10×10 | Each cell has a random value from the set of **valid products** of two numbers 1–9 (36 unique values: 1, 2, 3, ..., 72, 81). |
+| **Game Board** | 10×10 | Each cell has a random value from the set of **valid products** of two numbers 1–9. At game start, all 36 valid products (1, 2, 3, ..., 72, 81) are guaranteed to appear at least once on the board. |
 | **Multiplication Board** | 2×9 | Two rows of values **1–9**. Row 1 = Player 1 (Blue), Row 2 = Player 2 (Red). Each row has one pion. |
 
 **Product Calculation:**
@@ -315,6 +316,25 @@ php -S localhost:8080
 Then open [http://localhost:8080](http://localhost:8080) in your browser.
 
 Alternatively, simply open `index.html` directly in a modern browser.
+
+---
+
+## Feedback & Feature Requests
+
+We use **GitHub Issues** as the single channel for:
+
+- Bug reports
+- Feature requests
+- General user feedback
+
+Open: [https://github.com/andriash001/dolanan_matematika/issues](https://github.com/andriash001/dolanan_matematika/issues)
+
+In the app home screen footer, click **Give feedback** to open the same Issues page.
+
+When creating an issue, choose the matching form:
+
+- **Bug Report** for defects and unexpected behavior
+- **Feature Request** for new ideas and improvements
 
 ---
 

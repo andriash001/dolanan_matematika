@@ -1,0 +1,64 @@
+name: Permintaan Fitur / Feature Request
+description: Usulkan peningkatan untuk Dolanan Matematika / Suggest an improvement for Dolanan Matematika
+labels: [feature, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Terima kasih sudah berbagi ide.
+        Thanks for sharing your idea.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Masalah yang Diselesaikan / Problem to Solve
+      description: Masalah pengguna apa yang diselesaikan fitur ini? / What user problem does this feature solve?
+      placeholder: Jelaskan pain point secara jelas / Describe the pain point clearly
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Solusi yang Diusulkan / Proposed Solution
+      description: Apa yang perlu ditambahkan atau diubah? / What should be added or changed?
+      placeholder: Jelaskan perilaku fitur / Describe the feature behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatif yang Dipertimbangkan / Alternatives Considered
+      description: Pendekatan lain yang sudah dipertimbangkan / Other approaches you considered
+  - type: dropdown
+    id: target
+    attributes:
+      label: Target Pengguna / Target Audience
+      options:
+        - SD Kelas 1-2
+        - SD Kelas 3-4
+        - SD Kelas 5-6
+        - Teachers / Parents
+        - All users
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: Cakupan Permainan / Game Scope
+      options:
+        - Rumah Penjumlahan
+        - Rumah Perkalian
+        - Both / Home screen
+    validations:
+      required: true
+  - type: textarea
+    id: mockup
+    attributes:
+      label: Contoh / Mockup (opsional) / Example / Mockup (optional)
+      description: Tambahkan sketsa, screenshot, atau contoh alur jika ada. / Add sketches, screenshots, or sample flow if available.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pengecekan Awal / Pre-check
+      options:
+        - label: Saya sudah mencari issue yang ada dan fitur ini belum pernah diminta. / I have searched existing issues and this feature has not been requested yet.
+          required: true
