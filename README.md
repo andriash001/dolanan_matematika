@@ -47,12 +47,15 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 - **AI Opponent with Levels**: Choose **Easy**, **Normal**, or **Hard** when playing vs AI
 - **Smart Rematch Flow**: "Rematch" keeps the previous mode, timer, and AI difficulty for faster repeat games
 - **Round Summary Card**: End-of-round overlay shows AI level (vs AI), move count, and round duration
+- **Board Coordinates + Move Tracker**: The 10×10 game board now shows edge coordinates (`a1` to `j10`) and a live move history panel that records turns like `4 5 = 9 b8`
 - **Quick Exit from Coin Toss**: "Kembali ke Beranda" is available directly on coin toss screens
 - **Mobile-Friendly**: Responsive layout with `100dvh` viewport fix, touch-optimized targets, and landscape support
+- **Improved Side-Board Tiles**: Addition and multiplication side-board cells use a more proportional near-square layout instead of stretched horizontal rectangles
 - **Sound Effects**: Web Audio API-generated sounds for cell placement, coin toss, win celebration, timer warnings, and more — with mute toggle
 - **Series Scoreboard**: Football-style scoreboard tracks wins across rounds (e.g., `Pemain 1 [2] – [1] AI`); persists through "Play Again", resets on menu/home navigation
 - **Social Sharing**: Share game results to **X (Twitter)**, **Threads**, or copy to clipboard for **Instagram** — with score and winner in the share text
 - **How to Play Guide**: In-app tutorial modal ("How to Play") with bilingual instructions (Indonesian and English, switchable via ID/EN toggle), plus a floating help button during gameplay
+- **Dismissible Win Overlay**: The congratulations modal can be closed so players can review the final board position and move history before starting the next game
 - **Accessibility**: ARIA live regions, grid roles, semantic HTML, and colorblind-friendly player symbols (● / ▲)
 - **Player Name Persistence**: Names saved in `localStorage` across sessions
 - **Leave-Game Protection**: Browser warning when navigating away mid-game
@@ -67,6 +70,9 @@ Both games challenge players to align **4 consecutive pions** on a 10×10 board 
 ## Recent Updates
 
 - **Result Modal Overflow Fix (Win + Draw)**: The end-of-round modal (`.win-content`) now uses viewport-safe max height and internal vertical scrolling so long content (including tall vertical-pattern previews) stays accessible on small or landscape screens.
+- **Chess-Style Move History**: Added board edge coordinates (`a1`–`j10`) and a live move tracker for both Rumah Penjumlahan and Rumah Perkalian, with desktop side placement and mobile stacking below the board.
+- **Side-Board Proportion Cleanup**: Rebalanced the addition and multiplication side-board tiles so they stay closer to square and feel less stretched across wider layouts.
+- **Win Modal Close Control**: Added a close button to the congratulations overlay so players can return to the finished board and inspect the move history.
 
 ---
 
@@ -125,6 +131,8 @@ Each turn consists of **two phases**:
 
 Play alternates between players after each complete turn.
 
+During play, the main 10×10 board shows **edge coordinates** from `a1` to `j10`, and the move tracker records each completed turn in a compact notation such as `4 5 = 9 b8`.
+
 ### Winning the Game
 
 The first player to get **4 of their pions in a row** on the 10×10 Game Board wins. Winning lines can be:
@@ -134,6 +142,8 @@ The first player to get **4 of their pions in a row** on the 10×10 Game Board w
 - ↗️ Diagonal (either direction)
 
 Winning cells glow green to celebrate the victory.
+
+After the win overlay appears, players can use the **close button** to dismiss it and review the final board state plus the full move history.
 
 ---
 

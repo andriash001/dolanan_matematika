@@ -232,7 +232,20 @@
 
             <!-- Game Board (10x10) -->
             <div class="game-board-wrapper">
-                <div class="game-board" id="game-board" role="grid" aria-label="Papan Permainan Penjumlahan"></div>
+                <div class="board-area">
+                    <div class="board-column-labels" id="game-board-cols" aria-hidden="true"></div>
+                    <div class="board-grid-shell">
+                        <div class="board-row-labels" id="game-board-rows" aria-hidden="true"></div>
+                        <div class="game-board" id="game-board" role="grid" aria-label="Papan Permainan Penjumlahan"></div>
+                    </div>
+                </div>
+                <aside class="move-tracker" aria-label="Riwayat langkah penjumlahan">
+                    <div class="move-tracker-header">
+                        <h3>Riwayat</h3>
+                        <span class="move-tracker-count" id="move-tracker-count">0 langkah</span>
+                    </div>
+                    <div class="move-tracker-body" id="move-tracker-list"></div>
+                </aside>
             </div>
 
             <!-- Addition Board (2x10) -->
@@ -381,7 +394,20 @@
 
             <!-- Game Board (10x10) -->
             <div class="game-board-wrapper">
-                <div class="game-board" id="game-board-mult" role="grid" aria-label="Papan Permainan Perkalian"></div>
+                <div class="board-area">
+                    <div class="board-column-labels" id="game-board-cols-mult" aria-hidden="true"></div>
+                    <div class="board-grid-shell">
+                        <div class="board-row-labels" id="game-board-rows-mult" aria-hidden="true"></div>
+                        <div class="game-board" id="game-board-mult" role="grid" aria-label="Papan Permainan Perkalian"></div>
+                    </div>
+                </div>
+                <aside class="move-tracker" aria-label="Riwayat langkah perkalian">
+                    <div class="move-tracker-header">
+                        <h3>Riwayat</h3>
+                        <span class="move-tracker-count" id="move-tracker-count-mult">0 langkah</span>
+                    </div>
+                    <div class="move-tracker-body" id="move-tracker-list-mult"></div>
+                </aside>
             </div>
 
             <!-- Multiplication Board (2x9) -->
@@ -400,6 +426,7 @@
     <!-- ==================== WIN OVERLAY ==================== -->
     <div id="win-overlay" class="overlay" style="display:none;">
         <div class="win-content">
+            <button id="win-close-btn" class="overlay-close-btn" aria-label="Tutup overlay kemenangan">✕</button>
             <h2 id="win-title">🎉 Selamat!</h2>
             <p id="win-message"></p>
             <div id="win-summary-meta" class="summary-meta"></div>

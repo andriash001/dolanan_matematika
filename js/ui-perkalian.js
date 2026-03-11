@@ -60,6 +60,10 @@ const UIMult = (() => {
     const p2Score = $('#p2-score-mult');
     const p1Info = $('#player1-info-mult');
     const p2Info = $('#player2-info-mult');
+    const gameBoardCols = $('#game-board-cols-mult');
+    const gameBoardRows = $('#game-board-rows-mult');
+    const moveTrackerCount = $('#move-tracker-count-mult');
+    const moveTrackerList = $('#move-tracker-list-mult');
 
     // Overlays (shared with penjumlahan)
     const winOverlay = $('#win-overlay');
@@ -67,6 +71,7 @@ const UIMult = (() => {
     const winMessage = $('#win-message');
     const playAgainBtn = $('#play-again-btn');
     const backMenuBtn = $('#back-menu-btn');
+    const winCloseBtn = $('#win-close-btn');
     const drawOverlay = $('#draw-overlay');
     const drawTitle = $('#draw-title');
     const drawMessage = $('#draw-message');
@@ -100,6 +105,59 @@ const UIMult = (() => {
     let roundStartTime = null;
     let roundId = 0;
     let lastMatchConfig = null;
+    let lastRenderedMoveCount = 0;
+
+    function renderBoardCoordinates() {
+        const columnLabels = Array.from({ length: MULT_BOARD_SIZE }, (_, index) =>
+            `<span class="board-axis-label">${String.fromCharCode(97 + index)}</span>`
+        ).join('');
+        const rowLabels = Array.from({ length: MULT_BOARD_SIZE }, (_, index) =>
+            `<span class="board-axis-label">${index + 1}</span>`
+        ).join('');
+
+        gameBoardCols.innerHTML = columnLabels;
+        gameBoardRows.innerHTML = rowLabels;
+    }
+
+    function getMoveNotation(move) {
+        if (move.notation) return move.notation;
+
+        const pionValues = Array.isArray(move.pionValues)
+            ? move.pionValues
+            : Array.isArray(move.pionPositions)
+                ? move.pionPositions.map((position) => position + 1)
+                : ['?', '?'];
+        const result = move.result ?? '?';
+        const coordinate = move.coordinate ?? `${String.fromCharCode(97 + move.col)}${move.row + 1}`;
+
+        return `${pionValues[0]} ${pionValues[1]} = ${result} ${coordinate}`;
+    }
+
+    function renderMoveTracker() {
+        const history = GameMult.getState().moveHistory || [];
+        moveTrackerCount.textContent = `${history.length} langkah`;
+
+        if (history.length === 0) {
+            moveTrackerList.innerHTML = '<p class="move-tracker-empty">Belum ada langkah.</p>';
+            moveTrackerList.scrollTop = 0;
+            lastRenderedMoveCount = 0;
+            return;
+        }
+
+        moveTrackerList.innerHTML = history.map((move, index) => `
+            <div class="move-entry">
+                <span class="move-entry-number">${index + 1}.</span>
+                <span class="move-entry-player move-entry-player-${move.player + 1}" aria-label="Langkah pemain ${move.player + 1}"></span>
+                <span class="move-entry-text">${getMoveNotation(move)}</span>
+            </div>
+        `).join('');
+
+        if (history.length !== lastRenderedMoveCount) {
+            moveTrackerList.scrollTop = moveTrackerList.scrollHeight;
+        }
+
+        lastRenderedMoveCount = history.length;
+    }
 
     function scheduleAI(fn, delay) {
         const scheduledRoundId = roundId;
@@ -291,6 +349,10 @@ const UIMult = (() => {
             stopTurnTimer();
             GameMult.resetSeriesScore();
             showScreen('menu-mult');
+        });
+        winCloseBtn.addEventListener('click', () => {
+            if (!isMultActive) return;
+            winOverlay.style.display = 'none';
         });
 
         // Draw overlay
@@ -748,8 +810,10 @@ const UIMult = (() => {
         p1NameDisplay.textContent = players[0].name;
         p2NameDisplay.textContent = players[1].name;
 
+        renderBoardCoordinates();
         createGameBoard();
         createGameMultBoard();
+        lastRenderedMoveCount = 0;
         updateGameUI();
     }
 
@@ -775,6 +839,7 @@ const UIMult = (() => {
                 const cell = cells[idx];
                 const data = board[r][c];
                 cell.textContent = data.value;
+                cell.title = `${String.fromCharCode(97 + c)}${r + 1} • ${data.value}`;
                 cell.classList.remove('taken-1', 'taken-2', 'highlight', 'win-cell');
                 if (data.owner === 0) cell.classList.add('taken-1');
                 else if (data.owner === 1) cell.classList.add('taken-2');
@@ -883,6 +948,7 @@ const UIMult = (() => {
         // Update board cells (no DOM recreation)
         updateMultBoardCells();
         updateBoardCells();
+        renderMoveTracker();
     }
 
     // ============================================
