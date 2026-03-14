@@ -55,6 +55,9 @@ const UI = (() => {
     const timerBarTrackEl = $('#timer-bar-track');
     const sumDisplay = $('#sum-value');
     const phaseInstruction = $('#phase-instruction');
+    const postGameActions = $('#post-game-actions');
+    const postGameRematchBtn = $('#post-game-rematch-btn');
+    const postGameMenuBtn = $('#post-game-menu-btn');
     const p1NameDisplay = $('#p1-name-display');
     const p2NameDisplay = $('#p2-name-display');
     const p1Score = $('#p1-score');
@@ -158,6 +161,31 @@ const UI = (() => {
         }
 
         lastRenderedMoveCount = history.length;
+    }
+
+    function setPostGameActionsVisible(visible) {
+        postGameActions.classList.toggle('visible', visible);
+    }
+
+    function clearWinOverlay() {
+        winOverlay.style.display = 'none';
+        winPatternGrid.innerHTML = '';
+        winPatternLabel.style.display = 'none';
+    }
+
+    function handlePostGameRematch() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        startRematch();
+    }
+
+    function handlePostGameMenu() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        Game.resetSeriesScore();
+        showScreen('menu');
     }
 
     function scheduleAI(fn, delay) {
@@ -391,24 +419,24 @@ const UI = (() => {
         // Win overlay (gated by isAddActive — shared with perkalian)
         playAgainBtn.addEventListener('click', () => {
             if (!isAddActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            startRematch();
+            handlePostGameRematch();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isAddActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            Game.resetSeriesScore();
-            showScreen('menu');
+            handlePostGameMenu();
         });
         winCloseBtn.addEventListener('click', () => {
             if (!isAddActive) return;
-            winOverlay.style.display = 'none';
+            clearWinOverlay();
+            setPostGameActionsVisible(Game.getWinner() !== null && Game.getWinner() !== -1);
+        });
+        postGameRematchBtn.addEventListener('click', () => {
+            if (!isAddActive) return;
+            handlePostGameRematch();
+        });
+        postGameMenuBtn.addEventListener('click', () => {
+            if (!isAddActive) return;
+            handlePostGameMenu();
         });
 
         // Draw overlay — "Lanjutkan" only shown for normal skip (no longer used)
@@ -435,6 +463,7 @@ const UI = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             startRematch();
         });
@@ -445,6 +474,7 @@ const UI = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             Game.resetSeriesScore();
             showScreen('menu');
@@ -503,6 +533,7 @@ const UI = (() => {
     // ============================================
     function showScreen(name) {
         $$('.screen').forEach(s => s.classList.remove('active'));
+        setPostGameActionsVisible(false);
         const floatingHelp = document.getElementById('floating-help-btn');
         switch(name) {
             case 'home':
@@ -559,6 +590,9 @@ const UI = (() => {
     function startGame() {
         clearAllAITimers();
         stopTurnTimer();
+        isAddActive = true;
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
         
         // ---- Round tracking & config snapshot ----
         roundId++;
@@ -988,6 +1022,7 @@ const UI = (() => {
         const state = Game.getState();
         const players = Game.getPlayers();
         const currentPlayer = Game.getCurrentPlayer();
+        const winner = Game.getWinner();
 
         // Turn indicator
         turnIndicator.textContent = `Giliran: ${players[currentPlayer].name}`;
@@ -1006,7 +1041,9 @@ const UI = (() => {
         sumDisplay.textContent = sum !== null ? sum : '—';
 
         // Phase instruction
-        if (state.phase === 'move-pion') {
+        if (winner !== null && winner !== -1) {
+            phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        } else if (state.phase === 'move-pion') {
             if (Game.isFirstTurn()) {
                 phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan salah satu pion di Board Penjumlahan (giliran pertama: bisa gerakkan pion manapun)`;
             } else {
@@ -1020,6 +1057,7 @@ const UI = (() => {
         updateAddBoardCells();
         updateBoardCells();
         renderMoveTracker();
+        setPostGameActionsVisible(isAddActive && winner !== null && winner !== -1);
     }
 
     // ============================================
@@ -1133,6 +1171,8 @@ const UI = (() => {
         updateSeriesScoreDisplay(winSeriesScore, players);
         populateSummaryMeta('win', 'win');
         currentShareText = buildShareText(players);
+        phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        setPostGameActionsVisible(isAddActive);
         winOverlay.style.display = 'flex';
     }
 

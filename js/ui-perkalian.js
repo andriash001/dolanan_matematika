@@ -54,6 +54,9 @@ const UIMult = (() => {
     const timerBarTrackEl = $('#timer-bar-track-mult');
     const productDisplay = $('#product-value-mult');
     const phaseInstruction = $('#phase-instruction-mult');
+    const postGameActions = $('#post-game-actions-mult');
+    const postGameRematchBtn = $('#post-game-rematch-btn-mult');
+    const postGameMenuBtn = $('#post-game-menu-btn-mult');
     const p1NameDisplay = $('#p1-name-display-mult');
     const p2NameDisplay = $('#p2-name-display-mult');
     const p1Score = $('#p1-score-mult');
@@ -157,6 +160,31 @@ const UIMult = (() => {
         }
 
         lastRenderedMoveCount = history.length;
+    }
+
+    function setPostGameActionsVisible(visible) {
+        postGameActions.classList.toggle('visible', visible);
+    }
+
+    function clearWinOverlay() {
+        winOverlay.style.display = 'none';
+        winPatternGrid.innerHTML = '';
+        winPatternLabel.style.display = 'none';
+    }
+
+    function handlePostGameRematch() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        startRematch();
+    }
+
+    function handlePostGameMenu() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        GameMult.resetSeriesScore();
+        showScreen('menu-mult');
     }
 
     function scheduleAI(fn, delay) {
@@ -335,24 +363,24 @@ const UIMult = (() => {
         // Win overlay — handle when mult game is active
         playAgainBtn.addEventListener('click', () => {
             if (!isMultActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            startRematch();
+            handlePostGameRematch();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isMultActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            GameMult.resetSeriesScore();
-            showScreen('menu-mult');
+            handlePostGameMenu();
         });
         winCloseBtn.addEventListener('click', () => {
             if (!isMultActive) return;
-            winOverlay.style.display = 'none';
+            clearWinOverlay();
+            setPostGameActionsVisible(GameMult.getWinner() !== null && GameMult.getWinner() !== -1);
+        });
+        postGameRematchBtn.addEventListener('click', () => {
+            if (!isMultActive) return;
+            handlePostGameRematch();
+        });
+        postGameMenuBtn.addEventListener('click', () => {
+            if (!isMultActive) return;
+            handlePostGameMenu();
         });
 
         // Draw overlay
@@ -378,6 +406,7 @@ const UIMult = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             startRematch();
         });
@@ -388,6 +417,7 @@ const UIMult = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             GameMult.resetSeriesScore();
             showScreen('menu-mult');
@@ -448,6 +478,7 @@ const UIMult = (() => {
     // ============================================
     function showScreen(name) {
         $$('.screen').forEach(s => s.classList.remove('active'));
+        setPostGameActionsVisible(false);
         const floatingHelp = document.getElementById('floating-help-btn');
         switch(name) {
             case 'home':
@@ -504,6 +535,9 @@ const UIMult = (() => {
     function startGame() {
         clearAllAITimers();
         stopTurnTimer();
+        isMultActive = true;
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
         
         // ---- Round tracking & config snapshot ----
         roundId++;
@@ -917,6 +951,7 @@ const UIMult = (() => {
         const state = GameMult.getState();
         const players = GameMult.getPlayers();
         const currentPlayer = GameMult.getCurrentPlayer();
+        const winner = GameMult.getWinner();
 
         // Turn indicator
         turnIndicator.textContent = `Giliran: ${players[currentPlayer].name}`;
@@ -935,7 +970,9 @@ const UIMult = (() => {
         productDisplay.textContent = product !== null ? product : '—';
 
         // Phase instruction
-        if (state.phase === 'move-pion') {
+        if (winner !== null && winner !== -1) {
+            phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        } else if (state.phase === 'move-pion') {
             if (GameMult.isFirstTurn()) {
                 phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan salah satu pion di Board Perkalian (giliran pertama: bisa gerakkan pion manapun)`;
             } else {
@@ -949,6 +986,7 @@ const UIMult = (() => {
         updateMultBoardCells();
         updateBoardCells();
         renderMoveTracker();
+        setPostGameActionsVisible(isMultActive && winner !== null && winner !== -1);
     }
 
     // ============================================
@@ -1060,6 +1098,8 @@ const UIMult = (() => {
         updateSeriesScoreDisplay(winSeriesScore, players);
         populateSummaryMeta('win', 'win');
         currentShareText = buildShareText(players);
+        phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        setPostGameActionsVisible(isMultActive);
         winOverlay.style.display = 'flex';
     }
 
