@@ -55,12 +55,19 @@ const UI = (() => {
     const timerBarTrackEl = $('#timer-bar-track');
     const sumDisplay = $('#sum-value');
     const phaseInstruction = $('#phase-instruction');
+    const postGameActions = $('#post-game-actions');
+    const postGameRematchBtn = $('#post-game-rematch-btn');
+    const postGameMenuBtn = $('#post-game-menu-btn');
     const p1NameDisplay = $('#p1-name-display');
     const p2NameDisplay = $('#p2-name-display');
     const p1Score = $('#p1-score');
     const p2Score = $('#p2-score');
     const p1Info = $('#player1-info');
     const p2Info = $('#player2-info');
+    const gameBoardCols = $('#game-board-cols');
+    const gameBoardRows = $('#game-board-rows');
+    const moveTrackerCount = $('#move-tracker-count');
+    const moveTrackerList = $('#move-tracker-list');
 
     // Overlays
     const winOverlay = $('#win-overlay');
@@ -68,6 +75,7 @@ const UI = (() => {
     const winMessage = $('#win-message');
     const playAgainBtn = $('#play-again-btn');
     const backMenuBtn = $('#back-menu-btn');
+    const winCloseBtn = $('#win-close-btn');
     const drawOverlay = $('#draw-overlay');
     const drawTitle = $('#draw-title');
     const drawMessage = $('#draw-message');
@@ -101,6 +109,84 @@ const UI = (() => {
     let roundStartTime = null;
     let roundId = 0;
     let lastMatchConfig = null;
+    let lastRenderedMoveCount = 0;
+
+    function renderBoardCoordinates() {
+        const columnLabels = Array.from({ length: BOARD_SIZE }, (_, index) =>
+            `<span class="board-axis-label">${String.fromCharCode(97 + index)}</span>`
+        ).join('');
+        const rowLabels = Array.from({ length: BOARD_SIZE }, (_, index) =>
+            `<span class="board-axis-label">${index + 1}</span>`
+        ).join('');
+
+        gameBoardCols.innerHTML = columnLabels;
+        gameBoardRows.innerHTML = rowLabels;
+    }
+
+    function getMoveNotation(move) {
+        if (move.notation) return move.notation;
+
+        const pionValues = Array.isArray(move.pionValues)
+            ? move.pionValues
+            : Array.isArray(move.pionPositions)
+                ? move.pionPositions.map((position) => position + 1)
+                : ['?', '?'];
+        const result = move.result ?? '?';
+        const coordinate = move.coordinate ?? `${String.fromCharCode(97 + move.col)}${move.row + 1}`;
+
+        return `${pionValues[0]} ${pionValues[1]} = ${result} ${coordinate}`;
+    }
+
+    function renderMoveTracker() {
+        const history = Game.getState().moveHistory || [];
+        moveTrackerCount.textContent = `${history.length} langkah`;
+
+        if (history.length === 0) {
+            moveTrackerList.innerHTML = '<p class="move-tracker-empty">Belum ada langkah.</p>';
+            moveTrackerList.scrollTop = 0;
+            lastRenderedMoveCount = 0;
+            return;
+        }
+
+        moveTrackerList.innerHTML = history.map((move, index) => `
+            <div class="move-entry">
+                <span class="move-entry-number">${index + 1}.</span>
+                <span class="move-entry-player move-entry-player-${move.player + 1}" aria-label="Langkah pemain ${move.player + 1}"></span>
+                <span class="move-entry-text">${getMoveNotation(move)}</span>
+            </div>
+        `).join('');
+
+        if (history.length !== lastRenderedMoveCount) {
+            moveTrackerList.scrollTop = moveTrackerList.scrollHeight;
+        }
+
+        lastRenderedMoveCount = history.length;
+    }
+
+    function setPostGameActionsVisible(visible) {
+        postGameActions.classList.toggle('visible', visible);
+    }
+
+    function clearWinOverlay() {
+        winOverlay.style.display = 'none';
+        winPatternGrid.innerHTML = '';
+        winPatternLabel.style.display = 'none';
+    }
+
+    function handlePostGameRematch() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        startRematch();
+    }
+
+    function handlePostGameMenu() {
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
+        stopTurnTimer();
+        Game.resetSeriesScore();
+        showScreen('menu');
+    }
 
     function scheduleAI(fn, delay) {
         const scheduledRoundId = roundId;
@@ -333,20 +419,24 @@ const UI = (() => {
         // Win overlay (gated by isAddActive — shared with perkalian)
         playAgainBtn.addEventListener('click', () => {
             if (!isAddActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            startRematch();
+            handlePostGameRematch();
         });
         backMenuBtn.addEventListener('click', () => {
             if (!isAddActive) return;
-            winOverlay.style.display = 'none';
-            winPatternGrid.innerHTML = '';
-            winPatternLabel.style.display = 'none';
-            stopTurnTimer();
-            Game.resetSeriesScore();
-            showScreen('menu');
+            handlePostGameMenu();
+        });
+        winCloseBtn.addEventListener('click', () => {
+            if (!isAddActive) return;
+            clearWinOverlay();
+            setPostGameActionsVisible(Game.getWinner() !== null && Game.getWinner() !== -1);
+        });
+        postGameRematchBtn.addEventListener('click', () => {
+            if (!isAddActive) return;
+            handlePostGameRematch();
+        });
+        postGameMenuBtn.addEventListener('click', () => {
+            if (!isAddActive) return;
+            handlePostGameMenu();
         });
 
         // Draw overlay — "Lanjutkan" only shown for normal skip (no longer used)
@@ -373,6 +463,7 @@ const UI = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             startRematch();
         });
@@ -383,6 +474,7 @@ const UI = (() => {
             drawGameoverButtons.style.display = 'none';
             drawSeriesScore.style.display = 'none';
             drawShareSection.style.display = 'none';
+            setPostGameActionsVisible(false);
             stopTurnTimer();
             Game.resetSeriesScore();
             showScreen('menu');
@@ -441,6 +533,7 @@ const UI = (() => {
     // ============================================
     function showScreen(name) {
         $$('.screen').forEach(s => s.classList.remove('active'));
+        setPostGameActionsVisible(false);
         const floatingHelp = document.getElementById('floating-help-btn');
         switch(name) {
             case 'home':
@@ -497,6 +590,9 @@ const UI = (() => {
     function startGame() {
         clearAllAITimers();
         stopTurnTimer();
+        isAddActive = true;
+        clearWinOverlay();
+        setPostGameActionsVisible(false);
         
         // ---- Round tracking & config snapshot ----
         roundId++;
@@ -814,8 +910,10 @@ const UI = (() => {
         p1NameDisplay.textContent = players[0].name;
         p2NameDisplay.textContent = players[1].name;
 
+        renderBoardCoordinates();
         createGameBoard();
         createGameAddBoard();
+        lastRenderedMoveCount = 0;
         updateGameUI();
     }
 
@@ -841,6 +939,7 @@ const UI = (() => {
                 const cell = cells[idx];
                 const data = board[r][c];
                 cell.textContent = data.value;
+                cell.title = `${String.fromCharCode(97 + c)}${r + 1} • ${data.value}`;
                 cell.classList.remove('taken-1', 'taken-2', 'highlight', 'win-cell');
                 if (data.owner === 0) cell.classList.add('taken-1');
                 else if (data.owner === 1) cell.classList.add('taken-2');
@@ -923,6 +1022,7 @@ const UI = (() => {
         const state = Game.getState();
         const players = Game.getPlayers();
         const currentPlayer = Game.getCurrentPlayer();
+        const winner = Game.getWinner();
 
         // Turn indicator
         turnIndicator.textContent = `Giliran: ${players[currentPlayer].name}`;
@@ -941,7 +1041,9 @@ const UI = (() => {
         sumDisplay.textContent = sum !== null ? sum : '—';
 
         // Phase instruction
-        if (state.phase === 'move-pion') {
+        if (winner !== null && winner !== -1) {
+            phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        } else if (state.phase === 'move-pion') {
             if (Game.isFirstTurn()) {
                 phaseInstruction.textContent = `${players[currentPlayer].name}, gerakkan salah satu pion di Board Penjumlahan (giliran pertama: bisa gerakkan pion manapun)`;
             } else {
@@ -954,6 +1056,8 @@ const UI = (() => {
         // Update board cells (no DOM recreation)
         updateAddBoardCells();
         updateBoardCells();
+        renderMoveTracker();
+        setPostGameActionsVisible(isAddActive && winner !== null && winner !== -1);
     }
 
     // ============================================
@@ -1067,6 +1171,8 @@ const UI = (() => {
         updateSeriesScoreDisplay(winSeriesScore, players);
         populateSummaryMeta('win', 'win');
         currentShareText = buildShareText(players);
+        phaseInstruction.textContent = 'Permainan selesai. Anda bisa melihat papan akhir atau lanjut rematch.';
+        setPostGameActionsVisible(isAddActive);
         winOverlay.style.display = 'flex';
     }
 

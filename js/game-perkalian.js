@@ -210,6 +210,27 @@ const GameMult = (() => {
         return cells;
     }
 
+    function getBoardCoordinate(row, col) {
+        return `${String.fromCharCode(97 + col)}${row + 1}`;
+    }
+
+    function createMoveRecord(row, col, product) {
+        const pionValues = [state.players[0].pionPos + 1, state.players[1].pionPos + 1];
+        const coordinate = getBoardCoordinate(row, col);
+
+        return {
+            player: state.currentPlayer,
+            playerNumber: state.currentPlayer + 1,
+            row,
+            col,
+            coordinate,
+            result: product,
+            pionPositions: [state.players[0].pionPos, state.players[1].pionPos],
+            pionValues,
+            notation: `${pionValues[0]} ${pionValues[1]} = ${product} ${coordinate}`
+        };
+    }
+
     // ---- Place on Board ----
     function placeOnBoard(row, col) {
         if (state.phase !== 'place-board') return false;
@@ -223,11 +244,7 @@ const GameMult = (() => {
         cell.owner = state.currentPlayer;
         state.players[state.currentPlayer].pionsOnBoard++;
 
-        state.moveHistory.push({
-            player: state.currentPlayer,
-            row, col,
-            pionPositions: [state.players[0].pionPos, state.players[1].pionPos]
-        });
+        state.moveHistory.push(createMoveRecord(row, col, product));
 
         const winResult = checkWin(row, col, state.currentPlayer);
         if (winResult) {

@@ -232,7 +232,20 @@
 
             <!-- Game Board (10x10) -->
             <div class="game-board-wrapper">
-                <div class="game-board" id="game-board" role="grid" aria-label="Papan Permainan Penjumlahan"></div>
+                <div class="board-area">
+                    <div class="board-column-labels" id="game-board-cols" aria-hidden="true"></div>
+                    <div class="board-grid-shell">
+                        <div class="board-row-labels" id="game-board-rows" aria-hidden="true"></div>
+                        <div class="game-board" id="game-board" role="grid" aria-label="Papan Permainan Penjumlahan"></div>
+                    </div>
+                </div>
+                <aside class="move-tracker" aria-label="Riwayat langkah penjumlahan">
+                    <div class="move-tracker-header">
+                        <h3>Riwayat</h3>
+                        <span class="move-tracker-count" id="move-tracker-count">0 langkah</span>
+                    </div>
+                    <div class="move-tracker-body" id="move-tracker-list"></div>
+                </aside>
             </div>
 
             <!-- Addition Board (2x10) -->
@@ -244,6 +257,11 @@
             <!-- Phase Instruction -->
             <div class="phase-instruction" id="phase-instruction" aria-live="polite">
                 Gerakkan pion Anda di Board Penjumlahan
+            </div>
+
+            <div class="post-game-actions" id="post-game-actions" aria-label="Aksi setelah permainan selesai">
+                <button id="post-game-rematch-btn" class="primary-btn">Rematch</button>
+                <button id="post-game-menu-btn" class="secondary-btn">Kembali ke Menu</button>
             </div>
         </div>
     </div>
@@ -381,7 +399,20 @@
 
             <!-- Game Board (10x10) -->
             <div class="game-board-wrapper">
-                <div class="game-board" id="game-board-mult" role="grid" aria-label="Papan Permainan Perkalian"></div>
+                <div class="board-area">
+                    <div class="board-column-labels" id="game-board-cols-mult" aria-hidden="true"></div>
+                    <div class="board-grid-shell">
+                        <div class="board-row-labels" id="game-board-rows-mult" aria-hidden="true"></div>
+                        <div class="game-board" id="game-board-mult" role="grid" aria-label="Papan Permainan Perkalian"></div>
+                    </div>
+                </div>
+                <aside class="move-tracker" aria-label="Riwayat langkah perkalian">
+                    <div class="move-tracker-header">
+                        <h3>Riwayat</h3>
+                        <span class="move-tracker-count" id="move-tracker-count-mult">0 langkah</span>
+                    </div>
+                    <div class="move-tracker-body" id="move-tracker-list-mult"></div>
+                </aside>
             </div>
 
             <!-- Multiplication Board (2x9) -->
@@ -394,12 +425,18 @@
             <div class="phase-instruction" id="phase-instruction-mult" aria-live="polite">
                 Gerakkan pion Anda di Board Perkalian
             </div>
+
+            <div class="post-game-actions" id="post-game-actions-mult" aria-label="Aksi setelah permainan selesai">
+                <button id="post-game-rematch-btn-mult" class="primary-btn">Rematch</button>
+                <button id="post-game-menu-btn-mult" class="secondary-btn">Kembali ke Menu</button>
+            </div>
         </div>
     </div>
 
     <!-- ==================== WIN OVERLAY ==================== -->
     <div id="win-overlay" class="overlay" style="display:none;">
         <div class="win-content">
+            <button id="win-close-btn" class="overlay-close-btn" aria-label="Tutup overlay kemenangan">✕</button>
             <h2 id="win-title">🎉 Selamat!</h2>
             <p id="win-message"></p>
             <div id="win-summary-meta" class="summary-meta"></div>
