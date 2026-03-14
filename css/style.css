@@ -55,10 +55,10 @@ body {
 #game-screen-mult.active {
     display: block;
     padding: 0;
-    min-height: auto;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* --- Overlay --- */
@@ -69,6 +69,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 16px;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
 }
@@ -782,8 +783,8 @@ body {
     max-width: 1080px;
     margin: 0 auto;
     padding: 8px 10px;
-    height: 100vh;
-    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
@@ -937,6 +938,7 @@ body {
     min-height: 0;
     display: flex;
     flex-direction: column;
+    width: min(100%, 680px);
 }
 
 .board-column-labels {
@@ -1073,6 +1075,7 @@ body {
     border-radius: 12px;
     padding: 6px;
     width: 100%;
+    aspect-ratio: 1 / 1;
 }
 
 .board-cell {
@@ -1599,6 +1602,10 @@ body {
         gap: 8px;
     }
 
+    .board-area {
+        width: 100%;
+    }
+
     .move-tracker {
         width: 100%;
         min-width: 0;
@@ -1794,8 +1801,14 @@ body {
 
 /* Landscape on short screens */
 @media (orientation: landscape) and (max-height: 500px) {
+    #game-screen.active,
+    #game-screen-mult.active {
+        overflow-y: auto;
+    }
+
     .game-layout {
-        padding: 2px 10px;
+        min-height: auto;
+        padding: 8px 10px;
     }
 
     .player-bar {
@@ -1809,15 +1822,20 @@ body {
     }
 
     .game-board-wrapper {
-        margin-bottom: 2px;
+        margin-bottom: 6px;
     }
 
     .move-tracker {
-        max-height: 110px;
+        max-height: 160px;
     }
 
     .board-column-labels {
         margin-bottom: 2px;
+    }
+
+    .game-board {
+        max-width: min(100%, 56vh);
+        margin: 0 auto;
     }
 
     .addition-board-section,
@@ -1841,6 +1859,10 @@ body {
         margin-top: 4px;
         padding: 6px;
         gap: 6px;
+    }
+
+    .win-content {
+        max-height: calc(100dvh - 20px);
     }
 
     .player-info {
