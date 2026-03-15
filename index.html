@@ -62,29 +62,52 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
     <!-- ==================== HOME SCREEN ==================== -->
     <main id="home-screen" class="screen active">
         <div class="home-container">
-            <h1 class="game-title"><span class="title-icon">🎮</span> Dolanan Matematika</h1>
-            <p class="home-subtitle">Pilih Permainan</p>
+            <div class="home-intro">
+                <span class="home-eyebrow">Main sambil berhitung, tetap terasa akrab</span>
+                <h1 class="game-title home-title"><span class="title-icon">🎮</span> Dolanan Matematika</h1>
+                <p class="home-subtitle">Dua permainan papan matematika untuk anak SD: satu melatih strategi penjumlahan, satu lagi melatih perkalian. Pilih permainan, atur pemain, lalu langsung mulai.</p>
+                <div class="home-highlights" aria-label="Keunggulan permainan">
+                    <span class="home-highlight">Untuk anak SD</span>
+                    <span class="home-highlight">2 pemain lokal atau vs AI</span>
+                    <span class="home-highlight">Main cepat, aturan sederhana</span>
+                </div>
+            </div>
 
             <div class="game-grid">
                 <button class="game-tile" id="tile-penjumlahan">
+                    <span class="tile-kicker">Rumah angka biru-merah</span>
                     <span class="tile-icon">➕</span>
                     <h2 class="tile-title">Rumah Penjumlahan</h2>
-                    <span class="tile-desc">Permainan Strategi Penjumlahan</span>
+                    <span class="tile-desc">Latih penjumlahan sambil mencari jalur terbaik untuk membuat 4 pion berjajar.</span>
+                    <div class="tile-meta" aria-hidden="true">
+                        <span class="tile-meta-chip">2 pemain</span>
+                        <span class="tile-meta-chip">vs AI</span>
+                    </div>
+                    <span class="tile-cta">Pilih penjumlahan</span>
                 </button>
                 <button class="game-tile" id="tile-perkalian">
+                    <span class="tile-kicker">Taktik cepat di papan</span>
                     <span class="tile-icon">✖️</span>
                     <h2 class="tile-title">Rumah Perkalian</h2>
-                    <span class="tile-desc">Permainan Strategi Perkalian</span>
+                    <span class="tile-desc">Adu strategi perkalian dengan ritme permainan yang sama, tetapi pilihan langkah terasa berbeda.</span>
+                    <div class="tile-meta" aria-hidden="true">
+                        <span class="tile-meta-chip">2 pemain</span>
+                        <span class="tile-meta-chip">vs AI</span>
+                    </div>
+                    <span class="tile-cta">Pilih perkalian</span>
                 </button>
             </div>
 
-            <button class="secondary-btn how-to-play-btn" id="how-to-play-btn">📖 How to Play</button>
+            <button class="secondary-btn how-to-play-btn" id="how-to-play-btn">📖 Lihat Cara Bermain</button>
 
             <footer class="home-footer">
                 <a href="https://github.com/andriash001/dolanan_matematika" target="_blank" rel="noopener noreferrer">
@@ -102,55 +125,75 @@
     <!-- ==================== MENU SCREEN ==================== -->
     <div id="menu-screen" class="screen">
         <div class="menu-container">
-            <h1 class="game-title">➕ Rumah Penjumlahan</h1>
-            <p class="game-subtitle">Permainan Strategi Penjumlahan</p>
+            <div class="menu-hero menu-hero-addition">
+                <span class="menu-badge">Setup permainan</span>
+                <h1 class="game-title">➕ Rumah Penjumlahan</h1>
+                <p class="game-subtitle">Permainan Strategi Penjumlahan</p>
+                <p class="menu-lead">Atur pemain, pilih mode, lalu mulai dengan alur yang sama seperti sebelumnya. Perubahannya hanya pada tampilan yang lebih terarah.</p>
+            </div>
 
             <div class="menu-form">
-                <div class="input-group">
-                    <label for="player1-name">Nama Pemain 1 (Biru)</label>
-                    <input type="text" id="player1-name" placeholder="Pemain 1" maxlength="15">
-                </div>
+                <div class="setup-panel">
+                    <div class="setup-panel-header">
+                        <h3>Siapa yang bermain?</h3>
+                        <p>Nama pemain tetap opsional, tetapi membantu membedakan giliran.</p>
+                    </div>
 
-                <div class="mode-selection">
-                    <h3>Pilih Mode</h3>
-                    <div class="mode-buttons">
-                        <button class="mode-btn selected" data-mode="pvp">
-                            <span class="mode-icon">👥</span>
-                            <span class="mode-label">PvP Lokal</span>
-                        </button>
-                        <button class="mode-btn" data-mode="ai">
-                            <span class="mode-icon">🤖</span>
-                            <span class="mode-label">vs AI</span>
-                        </button>
+                    <div class="input-group">
+                        <label for="player1-name">Nama Pemain 1 (Biru)</label>
+                        <input type="text" id="player1-name" placeholder="Pemain 1" maxlength="15">
+                    </div>
+
+                    <div class="input-group" id="player2-input">
+                        <label for="player2-name">Nama Pemain 2 (Merah)</label>
+                        <input type="text" id="player2-name" placeholder="Pemain 2" maxlength="15">
                     </div>
                 </div>
 
-                <div class="timer-selection" id="difficulty-selection" style="display:none;">
-                    <h3>Level AI</h3>
-                    <div class="timer-buttons">
-                        <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
-                        <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
-                        <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
+                <div class="setup-panel">
+                    <div class="setup-panel-header">
+                        <h3>Pilih ritme permainan</h3>
+                        <p>Pakai PvP lokal untuk main bergantian di satu layar, atau nyalakan AI untuk latihan mandiri.</p>
+                    </div>
+
+                    <div class="mode-selection">
+                        <h3>Pilih Mode</h3>
+                        <div class="mode-buttons">
+                            <button class="mode-btn selected" data-mode="pvp">
+                                <span class="mode-icon">👥</span>
+                                <span class="mode-label">PvP Lokal</span>
+                            </button>
+                            <button class="mode-btn" data-mode="ai">
+                                <span class="mode-icon">🤖</span>
+                                <span class="mode-label">vs AI</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="timer-selection" id="difficulty-selection" style="display:none;">
+                        <h3>Level AI</h3>
+                        <div class="timer-buttons">
+                            <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
+                            <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
+                            <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
+                        </div>
+                    </div>
+
+                    <div class="timer-selection">
+                        <h3>Batas Waktu per Giliran</h3>
+                        <div class="timer-buttons">
+                            <button class="timer-btn" data-time="15">15 detik</button>
+                            <button class="timer-btn selected" data-time="30">30 detik</button>
+                            <button class="timer-btn" data-time="60">60 detik</button>
+                            <button class="timer-btn" data-time="0">∞ Tanpa Batas</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timer-selection">
-                    <h3>Batas Waktu per Giliran</h3>
-                    <div class="timer-buttons">
-                        <button class="timer-btn" data-time="15">15 detik</button>
-                        <button class="timer-btn selected" data-time="30">30 detik</button>
-                        <button class="timer-btn" data-time="60">60 detik</button>
-                        <button class="timer-btn" data-time="0">∞ Tanpa Batas</button>
-                    </div>
+                <div class="menu-actions">
+                    <button id="start-btn" class="primary-btn">Mulai Permainan</button>
+                    <button id="back-home-btn" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
                 </div>
-
-                <div class="input-group" id="player2-input">
-                    <label for="player2-name">Nama Pemain 2 (Merah)</label>
-                    <input type="text" id="player2-name" placeholder="Pemain 2" maxlength="15">
-                </div>
-
-                <button id="start-btn" class="primary-btn">Mulai Permainan</button>
-                <button id="back-home-btn" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
             </div>
         </div>
     </div>
@@ -158,6 +201,7 @@
     <!-- ==================== COIN TOSS SCREEN ==================== -->
     <div id="coin-screen" class="screen">
         <div class="coin-container">
+            <span class="surface-badge">Penentu giliran</span>
             <h2>Lempar Koin</h2>
             <p class="coin-instruction" id="coin-instruction">Pemain 1, pilih sisi koin:</p>
 
@@ -177,6 +221,8 @@
                 </button>
             </div>
 
+            <p class="coin-helper">Pilih satu sisi koin, lalu permainan menentukan siapa yang memulai ronde ini.</p>
+
             <div class="coin-result" id="coin-result" style="display:none;">
                 <p id="coin-result-text"></p>
                 <button id="coin-continue-btn" class="primary-btn">Lanjutkan</button>
@@ -189,8 +235,10 @@
     <!-- ==================== INITIAL PLACEMENT SCREEN ==================== -->
     <div id="placement-screen" class="screen">
         <div class="placement-container">
+            <span class="surface-badge">Posisi awal</span>
             <h2 id="placement-title">Penempatan Awal</h2>
             <p id="placement-instruction"></p>
+            <p class="placement-helper">Tempatkan dua pion awal lebih dulu. Setelah dikonfirmasi, ronde utama langsung dimulai.</p>
 
             <div class="placement-board-wrapper">
                 <div class="addition-board-section">
@@ -205,7 +253,7 @@
 
     <!-- ==================== GAME SCREEN ==================== -->
     <div id="game-screen" class="screen">
-        <div class="game-layout">
+        <div class="game-layout game-layout-addition">
             <!-- Player Info Bar -->
             <div class="player-bar">
                 <div class="player-info player1-info" id="player1-info">
@@ -269,55 +317,75 @@
     <!-- ==================== MENU SCREEN (PERKALIAN) ==================== -->
     <div id="menu-screen-mult" class="screen">
         <div class="menu-container">
-            <h1 class="game-title">✖️ Rumah Perkalian</h1>
-            <p class="game-subtitle">Permainan Strategi Perkalian</p>
+            <div class="menu-hero menu-hero-multiplication">
+                <span class="menu-badge">Setup permainan</span>
+                <h1 class="game-title">✖️ Rumah Perkalian</h1>
+                <p class="game-subtitle">Permainan Strategi Perkalian</p>
+                <p class="menu-lead">Susun permainan dengan pilihan yang sama, lalu masuk ke versi perkalian dengan nuansa yang konsisten dan lebih jelas.</p>
+            </div>
 
             <div class="menu-form">
-                <div class="input-group">
-                    <label for="player1-name-mult">Nama Pemain 1 (Biru)</label>
-                    <input type="text" id="player1-name-mult" placeholder="Pemain 1" maxlength="15">
-                </div>
+                <div class="setup-panel">
+                    <div class="setup-panel-header">
+                        <h3>Siapa yang bermain?</h3>
+                        <p>Nama pemain tetap opsional, tetapi membantu membaca giliran selama permainan.</p>
+                    </div>
 
-                <div class="mode-selection">
-                    <h3>Pilih Mode</h3>
-                    <div class="mode-buttons">
-                        <button class="mode-btn selected" data-mode="pvp">
-                            <span class="mode-icon">👥</span>
-                            <span class="mode-label">PvP Lokal</span>
-                        </button>
-                        <button class="mode-btn" data-mode="ai">
-                            <span class="mode-icon">🤖</span>
-                            <span class="mode-label">vs AI</span>
-                        </button>
+                    <div class="input-group">
+                        <label for="player1-name-mult">Nama Pemain 1 (Biru)</label>
+                        <input type="text" id="player1-name-mult" placeholder="Pemain 1" maxlength="15">
+                    </div>
+
+                    <div class="input-group" id="player2-input-mult">
+                        <label for="player2-name-mult">Nama Pemain 2 (Merah)</label>
+                        <input type="text" id="player2-name-mult" placeholder="Pemain 2" maxlength="15">
                     </div>
                 </div>
 
-                <div class="timer-selection" id="difficulty-selection-mult" style="display:none;">
-                    <h3>Level AI</h3>
-                    <div class="timer-buttons">
-                        <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
-                        <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
-                        <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
+                <div class="setup-panel">
+                    <div class="setup-panel-header">
+                        <h3>Pilih ritme permainan</h3>
+                        <p>Gunakan mode lokal untuk bermain bersama, atau AI untuk latihan perkalian secara mandiri.</p>
+                    </div>
+
+                    <div class="mode-selection">
+                        <h3>Pilih Mode</h3>
+                        <div class="mode-buttons">
+                            <button class="mode-btn selected" data-mode="pvp">
+                                <span class="mode-icon">👥</span>
+                                <span class="mode-label">PvP Lokal</span>
+                            </button>
+                            <button class="mode-btn" data-mode="ai">
+                                <span class="mode-icon">🤖</span>
+                                <span class="mode-label">vs AI</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="timer-selection" id="difficulty-selection-mult" style="display:none;">
+                        <h3>Level AI</h3>
+                        <div class="timer-buttons">
+                            <button class="timer-btn difficulty-btn" data-difficulty="easy">Easy</button>
+                            <button class="timer-btn difficulty-btn selected" data-difficulty="normal">Normal</button>
+                            <button class="timer-btn difficulty-btn" data-difficulty="hard">Hard</button>
+                        </div>
+                    </div>
+
+                    <div class="timer-selection">
+                        <h3>Batas Waktu per Giliran</h3>
+                        <div class="timer-buttons">
+                            <button class="timer-btn" data-time="15">15 detik</button>
+                            <button class="timer-btn selected" data-time="30">30 detik</button>
+                            <button class="timer-btn" data-time="60">60 detik</button>
+                            <button class="timer-btn" data-time="0">∞ Tanpa Batas</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timer-selection">
-                    <h3>Batas Waktu per Giliran</h3>
-                    <div class="timer-buttons">
-                        <button class="timer-btn" data-time="15">15 detik</button>
-                        <button class="timer-btn selected" data-time="30">30 detik</button>
-                        <button class="timer-btn" data-time="60">60 detik</button>
-                        <button class="timer-btn" data-time="0">∞ Tanpa Batas</button>
-                    </div>
+                <div class="menu-actions">
+                    <button id="start-btn-mult" class="primary-btn">Mulai Permainan</button>
+                    <button id="back-home-btn-mult" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
                 </div>
-
-                <div class="input-group" id="player2-input-mult">
-                    <label for="player2-name-mult">Nama Pemain 2 (Merah)</label>
-                    <input type="text" id="player2-name-mult" placeholder="Pemain 2" maxlength="15">
-                </div>
-
-                <button id="start-btn-mult" class="primary-btn">Mulai Permainan</button>
-                <button id="back-home-btn-mult" class="secondary-btn back-home-btn">← Kembali ke Beranda</button>
             </div>
         </div>
     </div>
@@ -325,6 +393,7 @@
     <!-- ==================== COIN TOSS SCREEN (PERKALIAN) ==================== -->
     <div id="coin-screen-mult" class="screen">
         <div class="coin-container">
+            <span class="surface-badge">Penentu giliran</span>
             <h2>Lempar Koin</h2>
             <p class="coin-instruction" id="coin-instruction-mult">Pemain 1, pilih sisi koin:</p>
 
@@ -344,6 +413,8 @@
                 </button>
             </div>
 
+            <p class="coin-helper">Pilih satu sisi koin, lalu permainan menentukan siapa yang memulai ronde ini.</p>
+
             <div class="coin-result" id="coin-result-mult" style="display:none;">
                 <p id="coin-result-text-mult"></p>
                 <button id="coin-continue-btn-mult" class="primary-btn">Lanjutkan</button>
@@ -356,8 +427,10 @@
     <!-- ==================== INITIAL PLACEMENT SCREEN (PERKALIAN) ==================== -->
     <div id="placement-screen-mult" class="screen">
         <div class="placement-container">
+            <span class="surface-badge">Posisi awal</span>
             <h2 id="placement-title-mult">Penempatan Awal</h2>
             <p id="placement-instruction-mult"></p>
+            <p class="placement-helper">Tempatkan dua pion awal lebih dulu. Setelah dikonfirmasi, ronde utama langsung dimulai.</p>
 
             <div class="placement-board-wrapper">
                 <div class="multiplication-board-section">
@@ -372,7 +445,7 @@
 
     <!-- ==================== GAME SCREEN (PERKALIAN) ==================== -->
     <div id="game-screen-mult" class="screen">
-        <div class="game-layout">
+        <div class="game-layout game-layout-multiplication">
             <!-- Player Info Bar -->
             <div class="player-bar">
                 <div class="player-info player1-info" id="player1-info-mult">
@@ -435,8 +508,9 @@
 
     <!-- ==================== WIN OVERLAY ==================== -->
     <div id="win-overlay" class="overlay" style="display:none;">
-        <div class="win-content">
+        <div class="win-content overlay-card">
             <button id="win-close-btn" class="overlay-close-btn" aria-label="Tutup overlay kemenangan">✕</button>
+            <p class="overlay-kicker">Akhir ronde</p>
             <h2 id="win-title">🎉 Selamat!</h2>
             <p id="win-message"></p>
             <div id="win-summary-meta" class="summary-meta"></div>
@@ -466,7 +540,8 @@
 
     <!-- ==================== DRAW / NO MOVES OVERLAY ==================== -->
     <div id="draw-overlay" class="overlay" style="display:none;">
-        <div class="win-content">
+        <div class="win-content overlay-card overlay-card-draw">
+            <p class="overlay-kicker">Lanjutkan ronde</p>
             <h2 id="draw-title">😐 Tidak Ada Langkah</h2>
             <p id="draw-message">Tidak ada cell tersedia untuk hasil penjumlahan ini.</p>
             <div id="draw-summary-meta" class="summary-meta"></div>
@@ -495,8 +570,9 @@
 
     <!-- ==================== HOW TO PLAY MODAL ==================== -->
     <div id="how-to-play-overlay" class="overlay" style="display:none;">
-        <div class="how-to-play-content">
+        <div class="how-to-play-content overlay-card overlay-card-guide">
             <button class="htp-close-btn" id="htp-close-btn" aria-label="Close">✕</button>
+            <p class="overlay-kicker">Panduan singkat</p>
             <h2>📖 How to Play</h2>
 
             <div class="htp-lang-toggle">
